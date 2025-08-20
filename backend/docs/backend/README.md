@@ -103,13 +103,111 @@ The schema is configured with `timestamps: true`, which automatically adds `crea
 
 ---
 
+## Authentication and Authorization
+
+Authentication is implemented using JSON Web Tokens (JWTs) to secure API endpoints. Authorization is handled through role-based access control.
+
+### Authentication Flow
+
+1.  **User Registration**: Users register with their name, email, and password via `POST /api/auth/register`.
+2.  **User Login**: Registered users log in with their email and password via `POST /api/auth/login`.
+3.  **JWT Generation**: Upon successful login, a JWT is issued to the user. This token must be included in subsequent requests to protected routes.
+
+### Protecting Routes
+
+-   **`protect` Middleware**: Located in `src/middleware/authMiddleware.js`, this middleware verifies the JWT provided in the `Authorization` header of incoming requests.
+    -   If the token is valid, the user's information is attached to the `req.user` object, and the request proceeds.
+    -   If the token is missing or invalid, the request is denied with a `401 Unauthorized` status.
+
+### Role-Based Authorization
+
+-   **`authorize` Middleware**: Also in `src/middleware/authMiddleware.js`, this middleware checks if the authenticated user's role is permitted to access a specific route.
+    -   It takes a list of allowed roles as arguments.
+    -   If the user's role is not in the allowed list, the request is denied with a `403 Forbidden` status.
+
+### Usage
+
+To protect an Express route, simply include the `protect` middleware:
+
+```javascript
+router.post('/', protect, controller.someFunction);
+```
+
+To add role-based authorization, include the `authorize` middleware with the required roles:
+
+```javascript
+router.post('/', protect, authorize('admin'), controller.adminFunction);
+```
+
+---
+
 ## API Endpoints
+
+All API endpoints are protected by authentication middleware. Requests to these endpoints must include a valid JWT in the `Authorization` header (e.g., `Bearer <token>`).
+
+### /api/auth
+
+**Description**: Handles user authentication, including registration and login.
+
+**Endpoints**:
+
+-   **`POST /api/auth/register`**:
+    -   **Description**: Registers a new user.
+    -   **Access**: Public
+    -   **Request Body (JSON)**:
+        ```json
+        {
+          "name": "John Doe",
+          "email": "john.doe@example.com",
+          "password": "password123",
+          "role": "user" // Optional, defaults to 'user'
+        }
+        ```
+    -   **Response (Success - 201 Created)**:
+        ```json
+        {
+          "message": "User registered successfully",
+          "user": {
+            "_id": "<user_id>",
+            "name": "John Doe",
+            "email": "john.doe@example.com",
+            "role": "user"
+          },
+          "token": "<jwt_token>"
+        }
+        ```
+
+-   **`POST /api/auth/login`**:
+    -   **Description**: Authenticates a user and returns a JWT.
+    -   **Access**: Public
+    -   **Request Body (JSON)**:
+        ```json
+        {
+          "email": "john.doe@example.com",
+          "password": "password123"
+        }
+        ```
+    -   **Response (Success - 200 OK)**:
+        ```json
+        {
+          "message": "User logged in successfully",
+          "user": {
+            "_id": "<user_id>",
+            "name": "John Doe",
+            "email": "john.doe@example.com",
+            "role": "user"
+          },
+          "token": "<jwt_token>"
+        }
+        ```
 
 ### /api/upload
 
 **Endpoint**: `POST /api/upload`
 
 **Description**: This endpoint is responsible for receiving and processing applicant data for ranking. It acts as the entry point for data ingestion into the system.
+
+**Access**: Private (requires authentication)
 
 **Functionality**:
 
@@ -147,7 +245,8 @@ The schema is configured with `timestamps: true`, which automatically adds `crea
   "message": "Data uploaded successfully",
   "result": {
     "success": true,
-    "receivedData": { ... }
+    ""savedCount": 2,
+    "savedApplicants": [ { ... }, { ... } ]
   }
 }
 ```
@@ -165,14 +264,13 @@ The schema is configured with `timestamps: true`, which automatically adds `crea
 
 -   **Route**: Defined in `src/routes/uploadRoutes.js`.
 -   **Controller**: `uploadApplicantData` in `src/controllers/uploadController.js` handles the request and response.
--   **Service**: `processApplicantData` in `src/services/uploadService.js` contains the core business logic for data handling. Currently, it's a placeholder for future data validation, transformation, and database storage logic.
+-   **Service**: `processApplicantData` in `src/services/uploadService.js` contains the core business logic for data handling.
 
 **Future Enhancements**:
 
 -   Implement actual file upload parsing (e.g., using `multer` for CSV/Excel files).
 -   Add comprehensive data validation and error handling within the service layer.
--   Integrate with an `Applicant` model for database persistence.
--   Implement authentication and authorization for endpoint access.
+-   Implement authorization based on user roles.
 
 ### /api/rank
 
@@ -180,10 +278,12 @@ The schema is configured with `timestamps: true`, which automatically adds `crea
 
 **Description**: This endpoint is responsible for ranking applicants based on specified criteria. It leverages AI-powered algorithms (to be implemented in the service layer) to provide a ranked list of applicants.
 
+**Access**: Private (requires authentication)
+
 **Functionality**:
 
 -   Receives ranking criteria (e.g., desired skills, GPA thresholds, experience levels).
--   Fetches relevant applicant data (from the database, once implemented).
+-   Fetches relevant applicant data (from the database).
 -   Applies ranking logic to score and sort applicants.
 -   Returns a ranked list of applicants.
 
@@ -232,14 +332,13 @@ The schema is configured with `timestamps: true`, which automatically adds `crea
 
 -   **Route**: Defined in `src/routes/rankRoutes.js`.
 -   **Controller**: `rankApplicants` in `src/controllers/rankController.js` handles the request and response.
--   **Service**: `performRanking` in `src/services/rankService.js` contains the core business logic for ranking. Currently, it returns dummy data and will be extended with actual ranking algorithms and database interactions.
+-   **Service**: `performRanking` in `src/services/rankService.js` contains the core business logic for ranking.
 
 **Future Enhancements**:
 
--   Integrate with a database to fetch real applicant data.
 -   Implement sophisticated AI-powered ranking algorithms.
 -   Add comprehensive validation for ranking criteria.
--   Implement authentication and authorization for endpoint access.
+-   Implement authorization based on user roles.
 
 ---
 
