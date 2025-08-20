@@ -4,6 +4,7 @@ This directory contains technical documentation for the backend of the applicant
 
 ## Table of Contents
 
+- [Project Structure](#project-structure)
 - [Project Setup](#project-setup)
 - [Database Connection](#database-connection)
 - [User Management](#user-management)
@@ -12,6 +13,30 @@ This directory contains technical documentation for the backend of the applicant
   - [/api/rank](#apirank)
 - [Testing](#testing)
 - [Quality Gates (SonarQube)](#quality-gates-sonarqube)
+
+---
+
+## Project Structure
+
+```
+backend/
+│── src/
+│   ├── config/         # Database and environment config
+│   ├── controllers/    # Route handlers
+│   ├── models/         # MongoDB schemas
+│   ├── routes/         # Express routes
+│   ├── services/       # Business logic
+│   ├── utils/          # Helper functions
+│   └── app.js          # Express app entry
+│
+│── tests/              # Unit & integration tests
+│── .env.example        # Example env file
+│── package.json
+│── README.md
+│── docs/
+│    └── backend/       # Documentation files for backend
+│── sonar-project.properties   # SonarQube configuration
+```
 
 ---
 
@@ -267,3 +292,25 @@ Test coverage reports can be generated to identify areas of the codebase that ar
 ## Quality Gates (SonarQube)
 
 Guidelines and information regarding SonarQube quality checks and how to ensure code compliance.
+
+### Running SonarQube Analysis
+
+To run a SonarQube analysis, navigate to the project root directory and execute the following command:
+
+```bash
+sonar-scanner
+```
+
+Ensure you have the SonarQube Scanner CLI installed and configured. The analysis will use the `sonar-project.properties` file located in the project root for configuration.
+
+### Quality Gate Compliance
+
+All new code and modifications must comply with the quality gates defined in SonarQube. This includes:
+
+-   **Code Smells**: Adherence to coding best practices and maintainability.
+-   **Bugs**: Absence of critical and major bugs.
+-   **Vulnerabilities**: No security vulnerabilities introduced.
+-   **Duplication**: Minimizing code duplication.
+-   **Coverage**: Maintaining a high level of test coverage (once configured).
+
+Regularly running SonarQube analysis is crucial to ensure code quality and adherence to project standards.
