@@ -103,6 +103,35 @@ The schema is configured with `timestamps: true`, which automatically adds `crea
 
 ---
 
+## Error Handling
+
+Robust error handling is crucial for maintaining application stability and providing meaningful feedback. The backend implements a centralized error handling mechanism.
+
+### Centralized Error Handling Middleware
+
+-   **`errorHandler`**: Located in `src/middleware/errorMiddleware.js`, this middleware catches errors propagated from routes, controllers, and services.
+    -   It sets the appropriate HTTP status code (defaults to 500 if not explicitly set).
+    -   It sends a JSON response containing the error message and, in development environments, the stack trace for debugging.
+
+### Asynchronous Handler Utility
+
+-   **`asyncHandler`**: Located in `src/utils/asyncHandler.js`, this utility simplifies error handling for asynchronous Express route handlers.
+    -   It wraps asynchronous functions, automatically catching any errors that occur and passing them to the Express error handling middleware (`errorHandler`).
+    -   This eliminates the need for repetitive `try...catch` blocks in every asynchronous controller function.
+
+### Usage
+
+To use the `asyncHandler` utility, simply wrap your asynchronous controller functions:
+
+```javascript
+const someControllerFunction = asyncHandler(async (req, res) => {
+  // Your asynchronous logic here
+  // Any errors thrown will be caught by asyncHandler and passed to errorHandler
+});
+```
+
+---
+
 ## Authentication and Authorization
 
 Authentication is implemented using JSON Web Tokens (JWTs) to secure API endpoints. Authorization is handled through role-based access control.
