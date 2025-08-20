@@ -82,7 +82,72 @@ The schema is configured with `timestamps: true`, which automatically adds `crea
 
 ### /api/upload
 
-Documentation for the `/api/upload` endpoint, including request/response formats and functionality.
+**Endpoint**: `POST /api/upload`
+
+**Description**: This endpoint is responsible for receiving and processing applicant data for ranking. It acts as the entry point for data ingestion into the system.
+
+**Functionality**:
+
+-   Receives applicant data, typically in a structured format (e.g., JSON, or to be extended for file uploads like CSV/Excel).
+-   Delegates data processing to the `uploadService` for validation, transformation, and storage.
+-   Returns a success or error response based on the processing outcome.
+
+**Request Body (Example - JSON)**:
+
+```json
+{
+  "applicants": [
+    {
+      "name": "John Doe",
+      "email": "john.doe@example.com",
+      "gpa": 3.8,
+      "experience": 2,
+      "skills": ["JavaScript", "Node.js"]
+    },
+    {
+      "name": "Jane Smith",
+      "email": "jane.smith@example.com",
+      "gpa": 3.9,
+      "experience": 3,
+      "skills": ["Python", "Machine Learning"]
+    }
+  ]
+}
+```
+
+**Response (Success - 200 OK)**:
+
+```json
+{
+  "message": "Data uploaded successfully",
+  "result": {
+    "success": true,
+    "receivedData": { ... }
+  }
+}
+```
+
+**Response (Error - 500 Internal Server Error)**:
+
+```json
+{
+  "message": "Server Error",
+  "error": "Error details..."
+}
+```
+
+**Implementation Details**:
+
+-   **Route**: Defined in `src/routes/uploadRoutes.js`.
+-   **Controller**: `uploadApplicantData` in `src/controllers/uploadController.js` handles the request and response.
+-   **Service**: `processApplicantData` in `src/services/uploadService.js` contains the core business logic for data handling. Currently, it's a placeholder for future data validation, transformation, and database storage logic.
+
+**Future Enhancements**:
+
+-   Implement actual file upload parsing (e.g., using `multer` for CSV/Excel files).
+-   Add comprehensive data validation and error handling within the service layer.
+-   Integrate with an `Applicant` model for database persistence.
+-   Implement authentication and authorization for endpoint access.
 
 ### /api/rank
 

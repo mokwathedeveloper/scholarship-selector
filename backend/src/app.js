@@ -10,6 +10,9 @@ const app = express();
 // Middleware
 app.use(express.json());
 
+// Routes
+app.use('/api/upload', require('./routes/uploadRoutes'));
+
 // Basic route
 app.get('/', (req, res) => {
   res.send('API is running...');
