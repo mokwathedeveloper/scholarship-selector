@@ -220,7 +220,47 @@ The schema is configured with `timestamps: true`, which automatically adds `crea
 
 ## Testing
 
-Information about unit and integration tests, how to run them, and test coverage.
+This section outlines the testing strategy and how to run tests for the backend application.
+
+### Framework
+
+**Jest** is used as the primary testing framework for both unit and integration tests.
+
+### Configuration
+
+Jest is configured via `backend/jest.config.js` to load environment variables using `dotenv/config` before tests run, ensuring that database connections and other environment-dependent settings are correctly picked up.
+
+### Running Tests
+
+To run all tests, navigate to the `backend/` directory and execute the following command:
+
+```bash
+npm test
+```
+
+This command is configured in `package.json` to run Jest with options to detect open handles and force exit, which helps in cleaning up resources after tests, especially database connections.
+
+### Test Types
+
+1.  **Unit Tests**:
+    -   Located in `backend/tests/unit/`.
+    -   Focus on testing individual components in isolation (ee.g., Mongoose models, helper functions).
+    -   Example: `user.test.js` tests the `User` model's schema validation.
+
+2.  **Integration Tests**:
+    -   Located in `backend/tests/integration/`.
+    -   Focus on testing the interaction between different components (e.g., API endpoints, controllers, services).
+    -   Examples: `upload.test.js` and `rank.test.js` test the `/api/upload` and `/api/rank` endpoints respectively, using `supertest` to simulate HTTP requests.
+
+### Database for Testing
+
+Tests that interact with the database connect to a MongoDB instance. The connection URI is typically loaded from the `MONGO_URI` environment variable. For testing, it's recommended to use a dedicated test database to avoid data corruption in development or production environments.
+
+**Important Note on MongoDB Authentication**: If you encounter `MongoServerError: Command requires authentication` during testing, ensure that the MongoDB user specified in your `MONGO_URI` has the necessary read and write permissions on the test database. This is an external MongoDB configuration that needs to be set up in your MongoDB Atlas (or self-hosted MongoDB) account.
+
+### Test Coverage (Future Enhancement)
+
+Test coverage reports can be generated to identify areas of the codebase that are not adequately tested. This will be configured and documented in a future iteration.
 
 ---
 
