@@ -1,2 +1,5 @@
 /.scannerwork/
 /sonar-project.properties
+
+backend/node_modules/
+backend/package-lock.json
