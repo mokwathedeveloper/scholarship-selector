@@ -5,10 +5,7 @@ const mongoose = require('mongoose');
 describe('Upload API', () => {
   beforeAll(async () => {
     const mongoUri = process.env.MONGO_URI || 'mongodb://localhost:27017/testdb';
-    await mongoose.connect(mongoUri, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
+    await mongoose.connect(mongoUri);
   });
 
   afterAll(async () => {
