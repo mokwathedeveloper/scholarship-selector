@@ -12,6 +12,7 @@ app.use(express.json());
 
 // Routes
 app.use('/api/upload', require('./routes/uploadRoutes'));
+app.use('/api/rank', require('./routes/rankRoutes'));
 
 // Basic route
 app.get('/', (req, res) => {

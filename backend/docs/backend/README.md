@@ -151,7 +151,70 @@ The schema is configured with `timestamps: true`, which automatically adds `crea
 
 ### /api/rank
 
-Documentation for the `/api/rank` endpoint, including request/response formats and ranking logic.
+**Endpoint**: `POST /api/rank`
+
+**Description**: This endpoint is responsible for ranking applicants based on specified criteria. It leverages AI-powered algorithms (to be implemented in the service layer) to provide a ranked list of applicants.
+
+**Functionality**:
+
+-   Receives ranking criteria (e.g., desired skills, GPA thresholds, experience levels).
+-   Fetches relevant applicant data (from the database, once implemented).
+-   Applies ranking logic to score and sort applicants.
+-   Returns a ranked list of applicants.
+
+**Request Body (Example - JSON)**:
+
+```json
+{
+  "criteria": {
+    "minGpa": 3.5,
+    "requiredSkills": ["Python", "Machine Learning"],
+    "minExperience": 2
+  }
+}
+```
+
+**Response (Success - 200 OK)**:
+
+```json
+{
+  "message": "Applicants ranked successfully",
+  "rankedApplicants": [
+    {
+      "id": "app1",
+      "name": "Applicant A",
+      "score": 95
+    },
+    {
+      "id": "app2",
+      "name": "Applicant B",
+      "score": 88
+    }
+  ]
+}
+```
+
+**Response (Error - 500 Internal Server Error)**:
+
+```json
+{
+  "message": "Server Error",
+  "error": "Error details..."
+}
+```
+
+**Implementation Details**:
+
+-   **Route**: Defined in `src/routes/rankRoutes.js`.
+-   **Controller**: `rankApplicants` in `src/controllers/rankController.js` handles the request and response.
+-   **Service**: `performRanking` in `src/services/rankService.js` contains the core business logic for ranking. Currently, it returns dummy data and will be extended with actual ranking algorithms and database interactions.
+
+**Future Enhancements**:
+
+-   Integrate with a database to fetch real applicant data.
+-   Implement sophisticated AI-powered ranking algorithms.
+-   Add comprehensive validation for ranking criteria.
+-   Implement authentication and authorization for endpoint access.
 
 ---
 
