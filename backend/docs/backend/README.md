@@ -51,7 +51,30 @@ Robust error handling is implemented to catch connection failures. If the databa
 
 ## User Management
 
-Details about the User schema, validation, and user-related operations.
+The User schema defines the structure and validation rules for user data stored in MongoDB. It is located at `src/models/User.js`.
+
+### Schema Definition
+
+The `UserSchema` includes the following fields:
+
+-   **`name`**: String, required. Represents the user's full name.
+-   **`email`**: String, required, unique. Stores the user's email address and includes a regex for basic email format validation.
+-   **`password`**: String, required. Stores the user's hashed password. Minimum length of 6 characters.
+-   **`role`**: String, enum (`'user'`, `'admin'`), default `'user'`. Defines the user's role within the system.
+
+### Validation
+
+Each field has built-in Mongoose validation:
+
+-   **Required Fields**: `name`, `email`, and `password` are marked as required.
+-   **Unique Email**: The `email` field is set to be unique, preventing duplicate user registrations with the same email address.
+-   **Email Format**: A regular expression is used to validate the format of the `email` address.
+-   **Password Length**: The `password` field enforces a minimum length of 6 characters.
+-   **Role Enumeration**: The `role` field is restricted to either `'user'` or `'admin'`.
+
+### Timestamps
+
+The schema is configured with `timestamps: true`, which automatically adds `createdAt` and `updatedAt` fields to each user document, recording when the user was created and last updated.
 
 ---
 
