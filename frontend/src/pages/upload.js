@@ -1,13 +1,19 @@
 // frontend/src/pages/upload.js
 import { useState } from 'react';
+import { uploadApplicants } from '../services/api'; // Import the API function
 
 export default function Upload() {
   const [file, setFile] = useState(null);
   const [dragOver, setDragOver] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState('');
+  const [isError, setIsError] = useState(false);
 
   const handleFileChange = (e) => {
     if (e.target.files) {
       setFile(e.target.files[0]);
+      setMessage('');
+      setIsError(false);
     }
   };
 
@@ -25,17 +31,33 @@ export default function Upload() {
     setDragOver(false);
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
       setFile(e.dataTransfer.files[0]);
+      setMessage('');
+      setIsError(false);
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (file) {
-      // Handle file upload logic here
-      console.log('Uploading file:', file.name);
-      alert(`File ${file.name} ready for upload! (Upload logic not yet implemented)`);
-    } else {
-      alert('Please select a file to upload.');
+    if (!file) {
+      setMessage('Please select a file to upload.');
+      setIsError(true);
+      return;
+    }
+
+    setLoading(true);
+    setMessage('');
+    setIsError(false);
+
+    try {
+      const data = await uploadApplicants(file);
+      setMessage(data.message || 'File uploaded successfully!');
+      setIsError(false);
+      setFile(null); // Clear file input after successful upload
+    } catch (error) {
+      setMessage(error || 'An error occurred during upload.');
+      setIsError(true);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -69,24 +91,31 @@ export default function Upload() {
             <p className="text-sm text-gray-400 mt-1">(.csv, .xlsx, .xls files accepted)</p>
           </div>
 
+          {/* File information (optional) */}
+          {file && (
+            <div className="mt-4 p-3 bg-gray-50 rounded-md text-sm text-gray-700">
+              <p>File Name: {file.name}</p>
+              <p>File Type: {file.type || 'N/A'}</p>
+              <p>File Size: {(file.size / 1024).toFixed(2)} KB</p>
+            </div>
+          )}
+
+          {/* Message Display */}
+          {message && (
+            <div className={`p-3 rounded-md text-center ${isError ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`}>
+              {message}
+            </div>
+          )}
+
           {/* Submit Button */}
           <button
             type="submit"
             className="w-full bg-blue-600 text-white py-3 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition-colors duration-200"
-            disabled={!file}
+            disabled={!file || loading}
           >
-            Upload File
+            {loading ? 'Uploading...' : 'Upload File'}
           </button>
         </form>
-
-        {/* File information (optional) */}
-        {file && (
-          <div className="mt-4 p-3 bg-gray-50 rounded-md text-sm text-gray-700">
-            <p>File Name: {file.name}</p>
-            <p>File Type: {file.type || 'N/A'}</p>
-            <p>File Size: {(file.size / 1024).toFixed(2)} KB</p>
-          </div>
-        )}
       </div>
     </div>
   );
