@@ -29,13 +29,31 @@ export const uploadApplicants = async (file: File): Promise<UploadResult> => {
 };
 
 // Function to fetch ranked applicants
-export const getRankedApplicants = async (): Promise<ApplicantData[]> => { // Specify return type
+export const getRankedApplicants = async (): Promise<ApplicantData[]> => {
   try {
-    const response = await api.get<ApplicantData[]>('/rank'); // Specify response type
+    const response = await api.get<ApplicantData[]>('/rank');
     return response.data;
-  } catch (error: any) { // Use 'any' for now
+  } catch (error: any) {
     throw error.response?.data || error.message;
   }
 };
 
-// You can add other API calls here (e.g., for authentication if needed)
+// Function to register a user
+export const registerUser = async (name: string, email: string, password: string, role?: string): Promise<AuthResponse> => {
+  try {
+    const response = await api.post<AuthResponse>('/auth/register', { name, email, password, role });
+    return response.data;
+  } catch (error: any) {
+    throw error.response?.data || error.message;
+  }
+};
+
+// Function to login a user
+export const loginUser = async (email: string, password: string): Promise<AuthResponse> => {
+  try {
+    const response = await api.post<AuthResponse>('/auth/login', { email, password });
+    return response.data;
+  } catch (error: any) {
+    throw error.response?.data || error.message;
+  }
+};
