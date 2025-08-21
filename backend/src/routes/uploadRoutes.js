@@ -5,6 +5,6 @@ const uploadController = require('../controllers/uploadController');
 const { protect } = require('../middleware/authMiddleware');
 
 // Route for uploading applicant data
-router.post('/', protect, uploadController.uploadApplicantData);
+router.post('/', uploadController.uploadApplicantData);
 
 module.exports = router;
