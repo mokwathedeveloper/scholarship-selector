@@ -1,8 +1,8 @@
-// frontend/src/pages/_app.js
 import '../styles/globals.css';
 import Layout from '../components/Layout';
+import { MyAppProps } from '../types/next-app'; // Import the interface
 
-function MyApp({ Component, pageProps }) {
+function MyApp({ Component, pageProps }: MyAppProps) {
   return (
     <Layout>
       <Component {...pageProps} />

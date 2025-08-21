@@ -2,6 +2,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import User from '../models/User';
 import { IUser } from '../models/User';
+import { AuthServiceResponse, UserWithoutPassword } from '../types/auth'; // Import UserWithoutPassword
 
 // Generate JWT
 const generateToken = (id: string): string => {
@@ -9,7 +10,7 @@ const generateToken = (id: string): string => {
 };
 
 // Register user
-const register = async (name: string, email: string, password: string, role?: string) => {
+const register = async (name: string, email: string, password: string, role?: string): Promise<AuthServiceResponse> => {
   // Check if user exists
   const userExists = await User.findOne({ email }).exec();
   if (userExists) {
@@ -29,19 +30,35 @@ const register = async (name: string, email: string, password: string, role?: st
   });
 
   if (user) {
-    return { user: { _id: user._id, name: user.name, email: user.email, role: user.role }, token: generateToken(user._id.toString()) };
+    const userWithoutPassword: UserWithoutPassword = { // Use UserWithoutPassword
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+    };
+    return { user: userWithoutPassword, token: generateToken(user._id.toString()) };
   } else {
     throw new Error('Invalid user data');
   }
 };
 
 // Login user
-const login = async (email: string, password: string) => {
+const login = async (email: string, password: string): Promise<AuthServiceResponse> => {
   // Check for user email
   const user = await User.findOne({ email }).exec();
 
   if (user && (await bcrypt.compare(password, user.password as string))) {
-    return { user: { _id: user._id, name: user.name, email: user.email, role: user.role }, token: generateToken(user._id.toString()) };
+    const userWithoutPassword: UserWithoutPassword = { // Use UserWithoutPassword
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+    };
+    return { user: userWithoutPassword, token: generateToken(user._id.toString()) };
   } else {
     throw new Error('Invalid credentials');
   }

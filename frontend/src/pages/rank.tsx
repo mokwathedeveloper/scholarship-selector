@@ -1,20 +1,20 @@
-// frontend/src/pages/rank.js
 import { useEffect, useState } from 'react';
 import ApplicantCard from '../components/ApplicantCard';
 import { getRankedApplicants } from '../services/api'; // Import the API function
+import { ApplicantData } from '../types/applicant'; // Import ApplicantData
 
 export default function Rank() {
-  const [rankedApplicants, setRankedApplicants] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [rankedApplicants, setRankedApplicants] = useState<ApplicantData[]>([]); // Use ApplicantData[]
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null); // Refine error type
 
   useEffect(() => {
     const fetchRankedData = async () => {
       try {
-        const data = await getRankedApplicants();
+        const data: ApplicantData[] = await getRankedApplicants(); // Expect ApplicantData[]
         setRankedApplicants(data);
-      } catch (err) {
-        setError(err || 'Failed to fetch ranked applicants.');
+      } catch (err: any) { // Keep any for now, or define a more specific error interface
+        setError(err.message || 'Failed to fetch ranked applicants.'); // Access message property
       } finally {
         setLoading(false);
       }

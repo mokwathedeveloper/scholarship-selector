@@ -4,11 +4,17 @@ import express, { Request, Response, NextFunction } from 'express';
 import connectDB from './config/db';
 import { errorHandler } from './middleware/errorMiddleware';
 import cors from 'cors';
+import morgan from 'morgan'; // Import morgan for logging
 
 // Connect to database
 connectDB();
 
 const app = express();
+
+// Logging middleware
+if (process.env.NODE_ENV === 'development') {
+  app.use(morgan('dev'));
+}
 
 app.use(cors());
 
@@ -29,9 +35,11 @@ app.get('/', (req: Request, res: Response) => {
   res.send('API is running...');
 });
 
-const PORT = process.env.PORT || 5000;
-
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-
-// Error handling middleware
 app.use(errorHandler);
+
+// Only connect to DB if app.ts is run directly (not imported as a module)
+if (require.main === module) {
+  connectDB();
+}
+
+export default app;

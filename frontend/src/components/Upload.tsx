@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { uploadApplicants } from "../services/api";
+import { UploadResult } from '../types/upload'; // Import UploadResult
 
 const Upload: React.FC = () => {
   const [file, setFile] = useState<File | null>(null);
@@ -18,9 +19,9 @@ const Upload: React.FC = () => {
     }
     try {
       setStatus("⏳ Uploading...");
-      const result = await uploadApplicants(file);
+      const result: UploadResult = await uploadApplicants(file); // Use UploadResult
       setStatus(`✅ Upload successful: ${JSON.stringify(result)}`);
-    } catch (error: any) {
+    } catch (error: any) { // Keep any for now, or define a more specific error interface
       setStatus(`❌ Upload failed: ${error.message}`);
     }
   };
