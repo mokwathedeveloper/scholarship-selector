@@ -14,10 +14,11 @@ const rankApplicants = asyncHandler(async (req, res) => {
 });
 
 const getRankedApplicants = asyncHandler(async (req, res) => {
-  // Placeholder for fetching ranked applicants
-  // This would typically involve querying the database for previously ranked data
-  // or re-running a simplified ranking based on stored criteria.
-  res.status(200).json({ message: 'Placeholder for ranked applicants data' });
+  // Use the performRanking function from rankService to get ranked applicants
+  // For GET request, we might not have specific criteria from req.body,
+  // so we can pass an empty object or default criteria if needed.
+  const rankedApplicants = await rankService.performRanking({}); // Pass empty criteria for now
+  res.status(200).json(rankedApplicants); // Return the actual ranked applicants
 });
 
 module.exports = { rankApplicants, getRankedApplicants };

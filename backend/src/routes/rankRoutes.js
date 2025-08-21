@@ -8,6 +8,6 @@ const { protect } = require('../middleware/authMiddleware');
 router.post('/', protect, rankController.rankApplicants);
 
 // Route for getting ranked applicants (GET)
-router.get('/', protect, rankController.getRankedApplicants);
+router.get('/', rankController.getRankedApplicants);
 
 module.exports = router;
