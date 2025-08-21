@@ -2,8 +2,13 @@ const Applicant = require('../models/Applicant');
 
 const performRanking = async (criteria) => {
   // 1. Fetching applicant data from the database.
-  // For now, fetch all applicants. In a real scenario, you'd filter based on criteria.
-  const applicants = await Applicant.find({}).exec();
+  let query = {};
+  if (criteria.minGpa) {
+    query.gpa = { $gte: criteria.minGpa };
+  }
+  // Add more criteria filtering here (e.g., experience, skills)
+
+  const applicants = await Applicant.find(query).exec();
 
   // 2. Applying AI-powered ranking algorithms based on criteria.
   // This is a placeholder for complex ranking logic.
