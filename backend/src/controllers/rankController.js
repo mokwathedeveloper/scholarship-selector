@@ -13,4 +13,11 @@ const rankApplicants = asyncHandler(async (req, res) => {
   res.status(200).json({ message: 'Applicants ranked successfully', rankedApplicants });
 });
 
-module.exports = { rankApplicants };
+const getRankedApplicants = asyncHandler(async (req, res) => {
+  // Placeholder for fetching ranked applicants
+  // This would typically involve querying the database for previously ranked data
+  // or re-running a simplified ranking based on stored criteria.
+  res.status(200).json({ message: 'Placeholder for ranked applicants data' });
+});
+
+module.exports = { rankApplicants, getRankedApplicants };
