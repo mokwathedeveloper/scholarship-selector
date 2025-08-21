@@ -1,12 +1,19 @@
 const Applicant = require('../models/Applicant');
+const csv = require('csv-parser');
+const fs = require('fs');
 
 const processApplicantData = async (data) => {
   // 1. Data validation (basic example, more comprehensive validation would be needed)
   if (!data || !Array.isArray(data.applicants) || data.applicants.length === 0) {
-    throw new Error('Invalid or empty applicant data provided.');
+    // Throw a more specific error that can be caught by errorMiddleware
+    const error = new Error('Invalid or empty applicant data provided. Expected an object with an "applicants" array.');
+    error.statusCode = 400; // Bad Request
+    throw error;
   }
 
   const savedApplicants = [];
+  const errors = []; // Collect errors
+
   for (const applicantData of data.applicants) {
     try {
       // 2. Data transformation (if needed, e.g., normalize skills)
@@ -17,13 +24,18 @@ const processApplicantData = async (data) => {
       const savedApplicant = await applicant.save();
       savedApplicants.push(savedApplicant);
     } catch (error) {
-      // Handle individual applicant saving errors
-      console.error(`Error saving applicant ${applicantData.email || 'unknown'}: ${error.message}`);
-      // Depending on requirements, you might want to:
-      // - Continue and log errors
-      // - Stop and return an error for the whole batch
-      // For now, we'll just log and continue.
+      // Collect individual applicant saving errors
+      errors.push({
+        applicant: applicantData.email || 'unknown',
+        message: error.message,
+        details: error.errors ? Object.keys(error.errors).map(key => error.errors[key].message) : [],
+      });
     }
+  }
+
+  if (errors.length > 0) {
+    // If there are errors, return a partial success or a failure with details
+    return { success: false, savedCount: savedApplicants.length, errors: errors, savedApplicants };
   }
 
   // 4. Potentially triggering ranking process (future enhancement)
@@ -31,4 +43,19 @@ const processApplicantData = async (data) => {
   return { success: true, savedCount: savedApplicants.length, savedApplicants };
 };
 
-module.exports = { processApplicantData };
+const parseCsvFile = (filePath) => {
+  return new Promise((resolve, reject) => {
+    const results = [];
+    fs.createReadStream(filePath)
+      .pipe(csv())
+      .on('data', (data) => results.push(data))
+      .on('end', () => {
+        resolve(results);
+      })
+      .on('error', (error) => {
+        reject(error);
+      });
+  });
+};
+
+module.exports = { processApplicantData, parseCsvFile };
