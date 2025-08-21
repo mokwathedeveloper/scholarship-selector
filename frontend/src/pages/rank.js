@@ -1,37 +1,43 @@
 // frontend/src/pages/rank.js
+import { useEffect, useState } from 'react';
 import ApplicantCard from '../components/ApplicantCard';
+import { getRankedApplicants } from '../services/api'; // Import the API function
 
 export default function Rank() {
-  // Dummy data for ranked applicants
-  const rankedApplicants = [
-    {
-      id: 1,
-      name: 'Alice Johnson',
-      email: 'alice@example.com',
-      gpa: 3.9,
-      experience: 4,
-      skills: ['React', 'Node.js', 'MongoDB'],
-      score: 95,
-    },
-    {
-      id: 2,
-      name: 'Bob Williams',
-      email: 'bob@example.com',
-      gpa: 3.7,
-      experience: 3,
-      skills: ['Python', 'Machine Learning'],
-      score: 90,
-    },
-    {
-      id: 3,
-      name: 'Charlie Brown',
-      email: 'charlie@example.com',
-      gpa: 3.5,
-      experience: 2,
-      skills: ['Java', 'Spring Boot'],
-      score: 85,
-    },
-  ];
+  const [rankedApplicants, setRankedApplicants] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchRankedData = async () => {
+      try {
+        const data = await getRankedApplicants();
+        setRankedApplicants(data);
+      } catch (err) {
+        setError(err || 'Failed to fetch ranked applicants.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchRankedData();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+        <p className="text-gray-700 text-lg">Loading ranked applicants...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+        <p className="text-red-600 text-lg">Error: {error}</p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-100 p-4">
