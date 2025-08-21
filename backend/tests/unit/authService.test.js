@@ -15,7 +15,7 @@ describe('Auth Service', () => {
   });
 
   afterEach(async () => {
-    await User.deleteMany({});
+    await User.deleteMany({}).exec();
   });
 
   afterAll(async () => {
