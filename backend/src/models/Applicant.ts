@@ -1,6 +1,17 @@
-const mongoose = require('mongoose');
+import mongoose, { Document, Schema } from 'mongoose';
 
-const ApplicantSchema = mongoose.Schema(
+export interface IApplicant extends Document {
+  _id: mongoose.Types.ObjectId;
+  name: string;
+  email: string;
+  gpa: number;
+  experience: number;
+  skills: string[];
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+const ApplicantSchema: Schema = new mongoose.Schema(
   {
     name: {
       type: String,
@@ -37,4 +48,4 @@ const ApplicantSchema = mongoose.Schema(
   }
 );
 
-module.exports = mongoose.model('Applicant', ApplicantSchema);
+export default mongoose.model<IApplicant>('Applicant', ApplicantSchema);
