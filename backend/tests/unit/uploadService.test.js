@@ -13,7 +13,7 @@ describe('Upload Service', () => {
   });
 
   afterEach(async () => {
-    await Applicant.deleteMany({});
+    await Applicant.deleteMany({}).exec();
   });
 
   afterAll(async () => {
