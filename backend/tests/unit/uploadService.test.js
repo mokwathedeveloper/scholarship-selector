@@ -85,11 +85,12 @@ describe('Upload Service', () => {
     // Expect no throw, but console.error will be called internally
     const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
     const result = await uploadService.processApplicantData(applicantData);
-    consoleSpy.mockRestore();
 
     expect(result.success).toBe(true);
     expect(result.savedCount).toBe(1); // Only the valid applicant should be saved
     expect(consoleSpy).toHaveBeenCalled();
+
+    consoleSpy.mockRestore();
 
     const savedApplicantsInDb = await Applicant.find({});
     expect(savedApplicantsInDb.length).toBe(1);
