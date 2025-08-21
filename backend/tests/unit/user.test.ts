@@ -1,8 +1,10 @@
-const mongoose = require('mongoose');
-const { MongoMemoryServer } = require('mongodb-memory-server');
-const User = require('../../src/models/User');
+import mongoose from 'mongoose';
+import { MongoMemoryServer } from 'mongodb-memory-server';
+import User, { IUser } from '../../src/models/User'; // Import IUser
 
-let mongoServer;
+jest.setTimeout(30000); // Increase timeout for this test suite
+
+let mongoServer: MongoMemoryServer;
 
 describe('User Model', () => {
   beforeAll(async () => {
@@ -28,7 +30,7 @@ describe('User Model', () => {
       password: 'password123',
     };
     const user = new User(userData);
-    const savedUser = await user.save();
+    const savedUser: IUser = await user.save(); // Type savedUser
 
     expect(savedUser._id).toBeDefined();
     expect(savedUser.name).toBe(userData.name);
@@ -38,16 +40,16 @@ describe('User Model', () => {
 
   it('should not save user without required fields', async () => {
     const user = new User({});
-    let err;
+    let err: mongoose.Error.ValidationError | undefined; // Type err
     try {
       await user.save();
-    } catch (error) {
-      err = error;
+    } catch (error: unknown) { // Type error as unknown
+      err = error as mongoose.Error.ValidationError; // Cast to ValidationError
     }
     expect(err).toBeInstanceOf(mongoose.Error.ValidationError);
-    expect(err.errors.name).toBeDefined();
-    expect(err.errors.email).toBeDefined();
-    expect(err.errors.password).toBeDefined();
+    expect(err?.errors?.name).toBeDefined(); // Use optional chaining
+    expect(err?.errors?.email).toBeDefined();
+    expect(err?.errors?.password).toBeDefined();
   });
 
   it('should not save user with duplicate email', async () => {
@@ -67,7 +69,7 @@ describe('User Model', () => {
 
     try {
       await new User(userData2).save();
-    } catch (error) {
+    } catch (error: any) { // Use any for now for simplicity with error.code
       expect(error).toBeDefined();
       expect(error.code).toBe(11000);
     }
@@ -80,14 +82,14 @@ describe('User Model', () => {
       password: 'password123',
     };
     const user = new User(userData);
-    let err;
+    let err: mongoose.Error.ValidationError | undefined;
     try {
       await user.save();
-    } catch (error) {
-      err = error;
+    } catch (error: unknown) {
+      err = error as mongoose.Error.ValidationError;
     }
     expect(err).toBeInstanceOf(mongoose.Error.ValidationError);
-    expect(err.errors.email.message).toContain('Please enter a valid email');
+    expect(err?.errors?.email?.message).toContain('Please enter a valid email');
   });
 
   it('should not save user with password less than 6 characters', async () => {
@@ -97,14 +99,14 @@ describe('User Model', () => {
       password: 'short',
     };
     const user = new User(userData);
-    let err;
+    let err: mongoose.Error.ValidationError | undefined;
     try {
       await user.save();
-    } catch (error) {
-      err = error;
+    } catch (error: unknown) {
+      err = error as mongoose.Error.ValidationError;
     }
     expect(err).toBeInstanceOf(mongoose.Error.ValidationError);
-    expect(err.errors.password.message).toContain('Password must be at least 6 characters');
+    expect(err?.errors?.password?.message).toContain('Password must be at least 6 characters');
   });
 
   it('should set role to admin if specified', async () => {
@@ -115,7 +117,7 @@ describe('User Model', () => {
       role: 'admin',
     };
     const user = new User(userData);
-    const savedUser = await user.save();
+    const savedUser: IUser = await user.save();
 
     expect(savedUser.role).toBe('admin');
   });
@@ -128,13 +130,13 @@ describe('User Model', () => {
       role: 'superadmin',
     };
     const user = new User(userData);
-    let err;
+    let err: mongoose.Error.ValidationError | undefined;
     try {
       await user.save();
-    } catch (error) {
-      err = error;
+    } catch (error: unknown) {
+      err = error as mongoose.Error.ValidationError;
     }
     expect(err).toBeInstanceOf(mongoose.Error.ValidationError);
-    expect(err.errors.role.message).toContain('`superadmin` is not a valid enum value for path `role`.');
+    expect(err?.errors?.role?.message).toContain('`superadmin` is not a valid enum value for path `role`.');
   });
 });

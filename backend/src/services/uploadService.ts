@@ -1,7 +1,8 @@
-import Applicant from '../models/Applicant';
-import { IApplicant } from '../models/Applicant';
+import Applicant, { IApplicant } from '../models/Applicant';
 import csv from 'csv-parser';
 import fs from 'fs';
+import { CsvApplicantData, ProcessApplicantDataPayload } from '../types/upload';
+import AppError from '../utils/AppError'; // Import AppError
 
 interface ProcessApplicantDataResult {
   success: boolean;
@@ -10,29 +11,32 @@ interface ProcessApplicantDataResult {
   savedApplicants?: IApplicant[];
 }
 
-interface CustomError extends Error {
-  statusCode?: number;
-}
+// Removed CustomError interface as AppError is used
 
-const processApplicantData = async (data: { applicants: any[] }): Promise<ProcessApplicantDataResult> => {
+const processApplicantData = async (payload: ProcessApplicantDataPayload): Promise<ProcessApplicantDataResult> => {
   // 1. Data validation (basic example, more comprehensive validation would be needed)
-  if (!data || !Array.isArray(data.applicants) || data.applicants.length === 0) {
-    // Throw a more specific error that can be caught by errorMiddleware
-    const error: CustomError = new Error('Invalid or empty applicant data provided. Expected an object with an "applicants" array.');
-    error.statusCode = 400; // Bad Request
-    throw error;
+  if (!payload || !Array.isArray(payload.applicants) || payload.applicants.length === 0) {
+    throw new AppError('Invalid or empty applicant data provided. Expected an object with an "applicants" array.', 400); // Use AppError
   }
 
   const savedApplicants: IApplicant[] = [];
   const errors: { applicant: string; message: string; details: string[] }[] = []; // Collect errors
 
-  for (const applicantData of data.applicants) {
+  for (const applicantData of payload.applicants) { // Use payload.applicants
     try {
       // 2. Data transformation (if needed, e.g., normalize skills)
       // For now, directly save to model
+      // Convert skills string to array
+      const skillsArray = applicantData.skills ? applicantData.skills.split(',').map(s => s.trim()) : [];
 
       // 3. Saving data to the database (Applicant model)
-      const applicant = new Applicant(applicantData);
+      const applicant = new Applicant({
+        name: applicantData.name,
+        email: applicantData.email,
+        gpa: applicantData.gpa,
+        experience: applicantData.experience,
+        skills: skillsArray,
+      });
       const savedApplicant = await applicant.save();
       savedApplicants.push(savedApplicant);
     } catch (error: unknown) {
@@ -63,12 +67,12 @@ const processApplicantData = async (data: { applicants: any[] }): Promise<Proces
   return { success: true, savedCount: savedApplicants.length, savedApplicants };
 };
 
-const parseCsvFile = (filePath: string): Promise<any[]> => { // Can refine 'any[]' if CSV structure is known
+const parseCsvFile = (filePath: string): Promise<CsvApplicantData[]> => {
   return new Promise((resolve, reject) => {
-    const results: any[] = []; // Can refine 'any[]' if CSV structure is known
+    const results: CsvApplicantData[] = [];
     fs.createReadStream(filePath)
       .pipe(csv())
-      .on('data', (data: any) => results.push(data)) // Can refine 'any' if CSV row structure is known
+      .on('data', (data: CsvApplicantData) => results.push(data)) // Refined type
       .on('end', () => {
         resolve(results);
       })
@@ -79,3 +83,4 @@ const parseCsvFile = (filePath: string): Promise<any[]> => { // Can refine 'any[
 };
 
 export { processApplicantData, parseCsvFile };
+

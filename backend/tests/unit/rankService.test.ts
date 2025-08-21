@@ -1,9 +1,10 @@
-const mongoose = require('mongoose');
-const { MongoMemoryServer } = require('mongodb-memory-server');
-const Applicant = require('../../src/models/Applicant');
-const rankService = require('../../src/services/rankService');
+import mongoose from 'mongoose';
+import { MongoMemoryServer } from 'mongodb-memory-server';
+import Applicant, { IApplicant } from '../../src/models/Applicant';
+import { performRanking } from '../../src/services/rankService'; // Import named export
+import { RankedApplicant } from '../../src/types/rank'; // Import RankedApplicant
 
-let mongoServer;
+let mongoServer: MongoMemoryServer;
 
 describe('Rank Service', () => {
   beforeAll(async () => {
@@ -49,7 +50,7 @@ describe('Rank Service', () => {
 
     await Applicant.insertMany(applicantsData);
 
-    const rankedApplicants = await rankService.performRanking({});
+    const rankedApplicants: RankedApplicant[] = await performRanking({}); // Type rankedApplicants
 
     expect(rankedApplicants).toBeDefined();
     expect(rankedApplicants.length).toBe(3);
@@ -60,7 +61,7 @@ describe('Rank Service', () => {
   });
 
   it('should return an empty array if no applicants are found', async () => {
-    const rankedApplicants = await rankService.performRanking({});
+    const rankedApplicants: RankedApplicant[] = await performRanking({});
     expect(rankedApplicants).toEqual([]);
   });
 });

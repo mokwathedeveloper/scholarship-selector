@@ -1,9 +1,9 @@
-const mongoose = require('mongoose');
-const { MongoMemoryServer } = require('mongodb-memory-server');
-const Applicant = require('../../src/models/Applicant');
-const uploadService = require('../../src/services/uploadService');
+import mongoose from 'mongoose';
+import { MongoMemoryServer } from 'mongodb-memory-server';
+import Applicant, { IApplicant } from '../../src/models/Applicant';
+import { processApplicantData } from '../../src/services/uploadService'; // Import named export
 
-let mongoServer;
+let mongoServer: MongoMemoryServer;
 
 describe('Upload Service', () => {
   beforeAll(async () => {
@@ -30,34 +30,34 @@ describe('Upload Service', () => {
           email: 'john.doe@example.com',
           gpa: 3.8,
           experience: 2,
-          skills: ['JavaScript', 'Node.js'],
+          skills: 'JavaScript, Node.js', // Assuming skills are comma-separated string from CSV
         },
         {
           name: 'Jane Smith',
           email: 'jane.smith@example.com',
           gpa: 3.9,
           experience: 3,
-          skills: ['Python', 'Machine Learning'],
+          skills: 'Python, Machine Learning',
         },
       ],
     };
 
-    const result = await uploadService.processApplicantData(applicantData);
+    const result = await processApplicantData(applicantData); // Use named import
 
     expect(result.success).toBe(true);
     expect(result.savedCount).toBe(2);
-    expect(result.savedApplicants.length).toBe(2);
+    expect(result.savedApplicants?.length).toBe(2); // Use optional chaining
 
-    const savedApplicantsInDb = await Applicant.find({}).exec();
+    const savedApplicantsInDb: IApplicant[] = await Applicant.find({}).exec(); // Type savedApplicantsInDb
     expect(savedApplicantsInDb.length).toBe(2);
     expect(savedApplicantsInDb[0].email).toBe('john.doe@example.com');
   });
 
   it('should throw an error for invalid or empty applicant data', async () => {
-    await expect(uploadService.processApplicantData({})).rejects.toThrow(
+    await expect(processApplicantData({} as any)).rejects.toThrow( // Cast to any for empty object
       'Invalid or empty applicant data provided.'
     );
-    await expect(uploadService.processApplicantData({ applicants: [] })).rejects.toThrow(
+    await expect(processApplicantData({ applicants: [] })).rejects.toThrow(
       'Invalid or empty applicant data provided.'
     );
   });
@@ -70,29 +70,27 @@ describe('Upload Service', () => {
           email: 'valid@example.com',
           gpa: 3.5,
           experience: 1,
-          skills: ['React'],
+          skills: 'React',
         },
         {
           name: 'Invalid Applicant',
           email: 'invalid-email', // Invalid email
           gpa: 2.0,
           experience: 0,
-          skills: ['HTML'],
+          skills: 'HTML',
         },
       ],
     };
 
-    // Expect no throw, but console.error will be called internally
-    const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
-    const result = await uploadService.processApplicantData(applicantData);
+    const result = await processApplicantData(applicantData);
 
-    expect(result.success).toBe(true);
-    expect(result.savedCount).toBe(1); // Only the valid applicant should be saved
-    expect(consoleSpy).toHaveBeenCalled();
+    expect(result.success).toBe(false);
+    expect(result.savedCount).toBe(1);
+    expect(result.errors).toBeDefined(); // Check that errors array is defined
+    expect(result.errors?.length).toBe(1); // Check that there is one error
+    expect(result.errors?.[0].applicant).toBe('invalid-email'); // Check the content of the error
 
-    consoleSpy.mockRestore();
-
-    const savedApplicantsInDb = await Applicant.find({}).exec();
+    const savedApplicantsInDb: IApplicant[] = await Applicant.find({}).exec();
     expect(savedApplicantsInDb.length).toBe(1);
     expect(savedApplicantsInDb[0].email).toBe('valid@example.com');
   });

@@ -1,5 +1,6 @@
-// frontend/src/components/ApplicantCard.js
-export default function ApplicantCard({ applicant }) {
+import { ApplicantCardProps } from '../types/applicant'; // Import the interface
+
+export default function ApplicantCard({ applicant }: ApplicantCardProps) {
   return (
     <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-4 flex items-center space-x-4">
       <div className="flex-shrink-0 w-12 h-12 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold text-lg">
