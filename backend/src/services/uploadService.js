@@ -1,4 +1,6 @@
 const Applicant = require('../models/Applicant');
+const csv = require('csv-parser');
+const fs = require('fs');
 
 const processApplicantData = async (data) => {
   // 1. Data validation (basic example, more comprehensive validation would be needed)
@@ -41,4 +43,19 @@ const processApplicantData = async (data) => {
   return { success: true, savedCount: savedApplicants.length, savedApplicants };
 };
 
-module.exports = { processApplicantData };
+const parseCsvFile = (filePath) => {
+  return new Promise((resolve, reject) => {
+    const results = [];
+    fs.createReadStream(filePath)
+      .pipe(csv())
+      .on('data', (data) => results.push(data))
+      .on('end', () => {
+        resolve(results);
+      })
+      .on('error', (error) => {
+        reject(error);
+      });
+  });
+};
+
+module.exports = { processApplicantData, parseCsvFile };
