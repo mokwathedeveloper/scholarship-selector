@@ -10,7 +10,7 @@ const generateToken = (id) => {
 // Register user
 const register = async (name, email, password, role) => {
   // Check if user exists
-  const userExists = await User.findOne({ email });
+  const userExists = await User.findOne({ email }).exec();
   if (userExists) {
     throw new Error('User already exists');
   }
@@ -37,7 +37,7 @@ const register = async (name, email, password, role) => {
 // Login user
 const login = async (email, password) => {
   // Check for user email
-  const user = await User.findOne({ email });
+  const user = await User.findOne({ email }).exec();
 
   if (user && (await bcrypt.compare(password, user.password))) {
     return { user: { _id: user._id, name: user.name, email: user.email, role: user.role }, token: generateToken(user._id) };
