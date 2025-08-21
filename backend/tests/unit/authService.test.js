@@ -38,7 +38,7 @@ describe('Auth Service', () => {
       expect(user.role).toBe('user');
       expect(token).toBeDefined();
 
-      const foundUser = await User.findOne({ email });
+      const foundUser = await User.findOne({ email }).exec();
       expect(foundUser).toBeDefined();
       expect(await bcrypt.compare(password, foundUser.password)).toBe(true);
     });
