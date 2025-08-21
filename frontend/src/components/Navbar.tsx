@@ -18,6 +18,12 @@ export default function Navbar() {
           <Link href="/rank" className="hover:text-gray-300">
             Rank
           </Link>
+          <Link href="/login" className="hover:text-gray-300">
+            Login
+          </Link>
+          <Link href="/register" className="hover:text-gray-300">
+            Register
+          </Link>
         </div>
       </div>
     </nav>
