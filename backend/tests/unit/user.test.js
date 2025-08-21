@@ -12,7 +12,7 @@ describe('User Model', () => {
   });
 
   afterEach(async () => {
-    await User.deleteMany({});
+    await User.deleteMany({}).exec();
   });
 
   afterAll(async () => {

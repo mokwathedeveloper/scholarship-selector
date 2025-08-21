@@ -48,7 +48,7 @@ describe('Upload Service', () => {
     expect(result.savedCount).toBe(2);
     expect(result.savedApplicants.length).toBe(2);
 
-    const savedApplicantsInDb = await Applicant.find({});
+    const savedApplicantsInDb = await Applicant.find({}).exec();
     expect(savedApplicantsInDb.length).toBe(2);
     expect(savedApplicantsInDb[0].email).toBe('john.doe@example.com');
   });
@@ -92,7 +92,7 @@ describe('Upload Service', () => {
 
     consoleSpy.mockRestore();
 
-    const savedApplicantsInDb = await Applicant.find({});
+    const savedApplicantsInDb = await Applicant.find({}).exec();
     expect(savedApplicantsInDb.length).toBe(1);
     expect(savedApplicantsInDb[0].email).toBe('valid@example.com');
   });
