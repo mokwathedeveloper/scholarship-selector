@@ -11,11 +11,16 @@ const customJestConfig = {
   testEnvironment: 'jest-environment-jsdom',
   moduleNameMapper: {
     // Handle module aliases (if configured in jsconfig.json or tsconfig.json)
-    '^@/components/(.*)$': '<rootDir>/src/components/$1',
-    '^@/pages/(.*)$': '<rootDir>/src/pages/$1',
-    '^@/services/(.*)$': '<rootDir>/src/services/$1',
-    '^@/styles/(.*)$': '<rootDir>/src/styles/$1',
-    '^@/utils/(.*)$': '<rootDir>/src/utils/$1',
+    '^@/components/(.*)
+: '<rootDir>/src/components/$1',
+    '^@/pages/(.*)
+: '<rootDir>/src/pages/$1',
+    '^@/services/(.*)
+: '<rootDir>/src/services/$1',
+    '^@/styles/(.*)
+: '<rootDir>/src/styles/$1',
+    '^@/utils/(.*)
+: '<rootDir>/src/utils/$1',
   },
   testPathIgnorePatterns: [
     '<rootDir>/.next/',

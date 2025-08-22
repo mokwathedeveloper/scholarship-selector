@@ -12,7 +12,7 @@ describe('User Model', () => {
   });
 
   afterEach(async () => {
-    await User.deleteMany({});
+    await User.deleteMany({}).exec();
   });
 
   afterAll(async () => {
@@ -51,6 +51,7 @@ describe('User Model', () => {
   });
 
   it('should not save user with duplicate email', async () => {
+    expect.assertions(2);
     const userData1 = {
       name: 'User One',
       email: 'duplicate@example.com',
@@ -64,14 +65,12 @@ describe('User Model', () => {
 
     await new User(userData1).save();
 
-    let err;
     try {
       await new User(userData2).save();
     } catch (error) {
-      err = error;
+      expect(error).toBeDefined();
+      expect(error.code).toBe(11000);
     }
-    expect(err).toBeInstanceOf(mongoose.Error.MongoServerError);
-    expect(err.code).toBe(11000);
   });
 
   it('should not save user with invalid email format', async () => {
