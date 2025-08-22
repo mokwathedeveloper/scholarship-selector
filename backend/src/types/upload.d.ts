@@ -14,6 +14,7 @@ export interface ProcessApplicantDataPayload {
 
 export interface UploadResponse {
   message: string;
+  file: string; // Added file property
   result: {
     success: boolean;
     savedCount: number;
