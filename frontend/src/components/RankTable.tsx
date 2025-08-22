@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { RankedApplicant } from '../types/applicant';
-import BreakdownModal from './BreakdownModal'; // Assuming this component will be created
+import BreakdownModal from './BreakdownModal';
+import { FaSort, FaSortUp, FaSortDown } from 'react-icons/fa'; // Import icons
 
 interface RankTableProps {
   applicants: RankedApplicant[];
@@ -34,38 +35,38 @@ const RankTable: React.FC<RankTableProps> = ({ applicants }) => {
     setSortConfig({ key, direction });
   };
 
-  const getArrow = (key: keyof RankedApplicant) => {
+  const getSortIcon = (key: keyof RankedApplicant) => {
     if (!sortConfig || sortConfig.key !== key) {
-      return '';
+      return <FaSort className="ml-2 text-gray-400" />;
     }
-    return sortConfig.direction === 'ascending' ? ' ⬆️' : ' ⬇️';
+    return sortConfig.direction === 'ascending' ? <FaSortUp className="ml-2 text-white" /> : <FaSortDown className="ml-2 text-white" />;
   };
 
   return (
-    <div className="overflow-x-auto">
-      <table className="min-w-full bg-white shadow-md rounded-lg overflow-hidden">
-        <thead className="bg-gray-800 text-white">
+    <div className="overflow-x-auto shadow-lg rounded-lg font-inter">
+      <table className="min-w-full bg-white rounded-lg overflow-hidden">
+        <thead className="bg-gradient-to-r from-blue-600 to-blue-800 text-white">
           <tr>
-            <th className="py-3 px-4 text-left cursor-pointer" onClick={() => requestSort('applicantId')}>
-              Applicant ID {getArrow('applicantId')}
+            <th className="py-3 px-4 text-left cursor-pointer uppercase tracking-wider flex items-center" onClick={() => requestSort('applicantId')}>
+              Applicant ID {getSortIcon('applicantId')}
             </th>
-            <th className="py-3 px-4 text-left cursor-pointer" onClick={() => requestSort('score')}>
-              Score {getArrow('score')}
+            <th className="py-3 px-4 text-left cursor-pointer uppercase tracking-wider flex items-center" onClick={() => requestSort('score')}>
+              Score {getSortIcon('score')}
             </th>
-            <th className="py-3 px-4 text-left">Explanation</th>
-            <th className="py-3 px-4 text-left">Actions</th>
+            <th className="py-3 px-4 text-left uppercase tracking-wider">Explanation</th>
+            <th className="py-3 px-4 text-left uppercase tracking-wider">Actions</th>
           </tr>
         </thead>
-        <tbody className="text-gray-700">
+        <tbody className="text-gray-700 divide-y divide-gray-200">
           {sortedApplicants.map((applicant) => (
-            <tr key={applicant.applicantId} className="border-b border-gray-200 hover:bg-gray-100">
-              <td className="py-3 px-4">{applicant.applicantId}</td>
-              <td className="py-3 px-4">{applicant.score.toFixed(2)}</td>
+            <tr key={applicant.applicantId} className="hover:bg-blue-50 transition duration-300 ease-in-out">
+              <td className="py-3 px-4 whitespace-nowrap">{applicant.applicantId}</td>
+              <td className="py-3 px-4 whitespace-nowrap">{applicant.score.toFixed(2)}</td>
               <td className="py-3 px-4">{applicant.explanation}</td>
-              <td className="py-3 px-4">
+              <td className="py-3 px-4 whitespace-nowrap">
                 <button
                   onClick={() => setSelectedApplicant(applicant)}
-                  className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                  className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-full shadow-md transition duration-300 ease-in-out transform hover:scale-105"
                 >
                   View Breakdown
                 </button>
