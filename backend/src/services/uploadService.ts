@@ -36,6 +36,7 @@ const processApplicantData = async (payload: ProcessApplicantDataPayload): Promi
         gpa: applicantData.gpa,
         experience: applicantData.experience,
         skills: skillsArray,
+        documentType: applicantData.documentType, // Added documentType
       });
       const savedApplicant = await applicant.save();
       savedApplicants.push(savedApplicant);
