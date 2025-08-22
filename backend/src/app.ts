@@ -33,10 +33,12 @@ app.use(express.json());
 import uploadRoutes from './routes/uploadRoutes';
 import rankRoutes from './routes/rankRoutes';
 import authRoutes from './routes/authRoutes';
+import criteriaRoutes from './routes/criteria.routes'; // New import
 
 app.use('/api/upload', uploadRoutes);
 app.use('/api/rank', rankRoutes);
 app.use('/api/auth', authRoutes);
+app.use('/api/criteria', criteriaRoutes); // New route
 
 // Basic route
 app.get('/', (req: Request, res: Response) => {
