@@ -2,11 +2,18 @@ import jwt from 'jsonwebtoken';
 import { Request, Response, NextFunction } from 'express';
 import User from '../models/User'; // Assuming User model is now TS and exports default
 
+import { IUser } from '../models/User'; // Import IUser
+
+interface JwtPayload {
+  id: string;
+  role: string;
+}
+
 // Extend the Request interface to include the user property
 declare global {
   namespace Express {
     interface Request {
-      user?: any; // You should replace 'any' with a proper User type/interface
+      user?: IUser; // Use IUser
     }
   }
 }
@@ -20,7 +27,7 @@ const protect = async (req: Request, res: Response, next: NextFunction) => {
       token = req.headers.authorization.split(' ')[1];
 
       // Verify token
-      const decoded: any = jwt.verify(token, process.env.JWT_SECRET as string); // Replace 'any' with a proper decoded token interface
+      const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as JwtPayload; // Use JwtPayload
 
       // Get user from the token
       req.user = await User.findById(decoded.id).select('-password').exec();
