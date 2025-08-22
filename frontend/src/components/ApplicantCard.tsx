@@ -12,6 +12,7 @@ export default function ApplicantCard({ applicant }: ApplicantCardProps) {
         <p className="text-gray-600">GPA: {applicant.gpa}</p>
         <p className="text-gray-600">Experience: {applicant.experience} years</p>
         <p className="text-gray-600">Skills: {applicant.skills.join(', ')}</p>
+        <p className="text-gray-600">Document Type: {applicant.documentType}</p>
       </div>
       <div className="flex-shrink-0 text-right">
         <p className="text-2xl font-bold text-blue-600">Score: {applicant.score}</p>
