@@ -1,4 +1,5 @@
 import { Facebook, Twitter, Linkedin } from "lucide-react";
+import { navLinks } from './NavLinks';
 
 export default function Footer() {
   return (
@@ -18,12 +19,9 @@ export default function Footer() {
         <div>
           <h3 className="text-lg font-semibold text-white">Quick Links</h3>
           <ul className="mt-3 space-y-2 text-sm">
-            <li><a href="/" className="hover:text-white transition">Home</a></li>
-            <li><a href="/upload" className="hover:text-white transition">Upload</a></li>
-            <li><a href="/rank" className="hover:text-white transition">Rank</a></li>
-            <li><a href="/programs" className="hover:text-white transition">Programs</a></li>
-            <li><a href="/applicants" className="hover:text-white transition">Applicants</a></li>
-            <li><a href="/audits" className="hover:text-white transition">Audits</a></li>
+            {navLinks.map((link) => (
+              <li key={link.name}><a href={link.href} className="hover:text-white transition">{link.name}</a></li>
+            ))}
           </ul>
         </div>
 
