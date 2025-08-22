@@ -23,8 +23,7 @@ const convertToCsv = (data: any[]): string => {
     });
     csvRows.push(values.join(','));
   }
-  return csvRows.join('
-');
+  return csvRows.join('\n');
 };
 
 // @desc    Export ranked applicants for a program
