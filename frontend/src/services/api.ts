@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { UploadResult } from '../types/upload';
-import { ApplicantData, RankedApplicant } from '../types/applicant'; // Import RankedApplicant
-import { AuthResponse } from '../types/auth'; // Assuming AuthResponse is defined here or in auth.d.ts
+import { ApplicantData, RankedApplicant } from '../types/applicant';
+import { AuthResponse } from '../types/auth';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5000/api';
 
@@ -43,8 +43,18 @@ export const getRank = async (topK?: number): Promise<RankedApplicant[]> => {
 // Function to fetch a single applicant by ID
 export const getApplicant = async (id: string): Promise<ApplicantData> => {
   try {
-    const response = await api.get<ApplicantData>(`/applicants/${id}`); // Assuming a /applicants/:id endpoint
-    return response.data;
+    const response = await api.get<{ success: boolean; data: ApplicantData }>(`/applicants/${id}`);
+    return response.data.data;
+  } catch (error: any) {
+    throw error.response?.data || error.message;
+  }
+};
+
+// Function to fetch all applicants
+export const getAllApplicants = async (): Promise<ApplicantData[]> => {
+  try {
+    const response = await api.get<{ success: boolean; data: ApplicantData[] }>('/applicants');
+    return response.data.data;
   } catch (error: any) {
     throw error.response?.data || error.message;
   }
