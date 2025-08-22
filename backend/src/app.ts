@@ -35,14 +35,16 @@ import rankRoutes from './routes/rankRoutes';
 import authRoutes from './routes/authRoutes';
 import criteriaRoutes from './routes/criteria.routes';
 import applicantRoutes from './routes/applicantRoutes';
-import exportRoutes from './routes/export.routes'; // New import
+import exportRoutes from './routes/export.routes';
+import webhookRoutes from './routes/webhook.routes'; // New import
 
 app.use('/api/upload', uploadRoutes);
 app.use('/api/rank', rankRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/criteria', criteriaRoutes);
 app.use('/api/applicants', applicantRoutes);
-app.use('/api/export', exportRoutes); // New route
+app.use('/api/export', exportRoutes);
+app.use('/api/webhooks', webhookRoutes); // New route
 
 // Basic route
 app.get('/', (req: Request, res: Response) => {
