@@ -1,89 +1,38 @@
-import React, { useEffect, useState } from 'react';
-import { getAllApplicants, getRank } from '../services/api'; // Import getAllApplicants
-import { ApplicantData, RankedApplicant } from '../types/applicant'; // Import ApplicantData
-import Link from 'next/link'; // Import Link for navigation
+import React from 'react';
+import Link from 'next/link';
 
 export default function Home() {
-  const [recentApplicants, setRecentApplicants] = useState<ApplicantData[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    const fetchRecentApplicants = async () => {
-      try {
-        setLoading(true);
-        const data = await getAllApplicants(); // Fetch all applicants
-        // Sort by createdAt or updatedAt if available, otherwise just take a few
-        setRecentApplicants(data.slice(0, 5)); // Display up to 5 recent applicants
-      } catch (err: any) {
-        setError(err.message || 'Failed to fetch recent applicants.');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchRecentApplicants();
-  }, []);
-
-  if (loading) {
-    return (
-      <div>
-        <h1 className="text-3xl font-bold underline">Landing Page</h1>
-        <p>Loading recent uploads...</p>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div>
-        <h1 className="text-3xl font-bold underline">Landing Page</h1>
-        <p className="text-red-500">Error: {error}</p>
-      </div>
-    );
-  }
-
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-3xl font-bold mb-6">Welcome to the Scholarship Selector!</h1>
+    <div className="min-h-screen bg-gray-50 font-inter">
+      {/* Hero Section */}
+      <section className="relative bg-gradient-to-r from-blue-600 to-blue-800 text-white py-20 md:py-32 flex items-center justify-center text-center">
+        <div className="container mx-auto px-4">
+          <h1 className="text-4xl md:text-6xl font-extrabold leading-tight mb-6 animate-fade-in-up">
+            Fair. Transparent. AI-powered Scholarship Selection.
+          </h1>
+          <p className="text-lg md:text-xl mb-10 opacity-0 animate-fade-in-up animation-delay-300">
+            Revolutionizing the way scholarships are awarded, ensuring equity and efficiency.
+          </p>
+          <Link href="/upload" className="bg-white text-blue-700 hover:bg-blue-100 font-bold py-3 px-8 rounded-full shadow-lg transition duration-300 ease-in-out transform hover:scale-105 opacity-0 animate-fade-in-up animation-delay-600">
+            Upload Applicants Now
+          </Link>
+        </div>
+      </section>
 
-      <div className="mb-8">
-        <h2 className="text-2xl font-semibold mb-4">Recent Uploads</h2>
-        {recentApplicants.length > 0 ? (
-          <div className="overflow-x-auto">
-            <table className="min-w-full bg-white shadow-md rounded-lg overflow-hidden">
-              <thead className="bg-gray-800 text-white">
-                <tr>
-                  <th className="py-3 px-4 text-left">Name</th>
-                  <th className="py-3 px-4 text-left">Email</th>
-                  <th className="py-3 px-4 text-left">Document Type</th>
-                </tr>
-              </thead>
-              <tbody className="text-gray-700">
-                {recentApplicants.map((applicant) => (
-                  <tr key={applicant.id} className="border-b border-gray-200 hover:bg-gray-100">
-                    <td className="py-3 px-4">{applicant.name}</td>
-                    <td className="py-3 px-4">{applicant.email}</td>
-                    <td className="py-3 px-4">{applicant.documentType}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        ) : (
-          <p>No recent uploads available.</p>
-        )}
-      </div>
-
-      <div>
-        <h2 className="text-2xl font-semibold mb-4">Actions</h2>
-        <Link href="/rank" className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mr-4">
-          View Ranked Applicants
-        </Link>
-        <Link href="/upload" className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
-          Upload New Applicants
-        </Link>
-      </div>
+      {/* About Section */}
+      <section className="py-16 md:py-24 bg-white">
+        <div className="container mx-auto px-4 text-center max-w-3xl">
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-8">
+            About the Scholarship Selector
+          </h2>
+          <p className="text-lg text-gray-600 leading-relaxed mb-4">
+            The Scholarship Selector is an AI-powered platform designed to streamline and enhance the applicant selection process for LSETF/PLP programs.
+          </p>
+          <p className="text-lg text-gray-600 leading-relaxed">
+            It analyzes diverse applicant data, ranks candidates based on predefined criteria, and generates transparent recommendations, ensuring fairness and efficiency in scholarship allocation.
+          </p>
+        </div>
+      </section>
     </div>
   );
 }
