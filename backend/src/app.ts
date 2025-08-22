@@ -5,11 +5,19 @@ import connectDB from './config/db';
 import { errorHandler } from './middleware/errorMiddleware';
 import cors from 'cors';
 import morgan from 'morgan'; // Import morgan for logging
+import fs from 'fs';
+import path from 'path';
 
 // Connect to database
 connectDB();
 
 const app = express();
+
+// Ensure uploads directory exists
+const uploadsDir = path.join(__dirname, '..', 'uploads');
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir);
+}
 
 // Logging middleware
 if (process.env.NODE_ENV === 'development') {
