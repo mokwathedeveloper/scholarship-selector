@@ -12,9 +12,10 @@ const api = axios.create({
 });
 
 // Function to upload applicant data
-export const uploadApplicants = async (file: File): Promise<UploadResult> => {
+export const uploadApplicants = async (file: File, documentType: string): Promise<UploadResult> => {
   const formData = new FormData();
   formData.append('file', file);
+  formData.append('documentType', documentType); // Add documentType to FormData
 
   try {
     const response = await api.post<UploadResult>('/upload', formData, { // Specify response type
