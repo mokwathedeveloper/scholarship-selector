@@ -37,6 +37,8 @@ import criteriaRoutes from './routes/criteria.routes';
 import applicantRoutes from './routes/applicantRoutes';
 import exportRoutes from './routes/export.routes';
 import webhookRoutes from './routes/webhook.routes'; // New import
+import userRoutes from './routes/userRoutes'; // New import for user routes
+import adminRoutes from './routes/adminRoutes'; // New import for admin routes
 
 app.use('/api/upload', uploadRoutes);
 app.use('/api/rank', rankRoutes);
@@ -45,6 +47,8 @@ app.use('/api/criteria', criteriaRoutes);
 app.use('/api/applicants', applicantRoutes);
 app.use('/api/export', exportRoutes);
 app.use('/api/webhooks', webhookRoutes); // New route
+app.use('/api/user', userRoutes); // Use user routes
+app.use('/api/admin', adminRoutes); // Use admin routes
 
 // Basic route
 app.get('/', (req: Request, res: Response) => {

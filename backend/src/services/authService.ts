@@ -5,8 +5,8 @@ import { IUser } from '../models/User';
 import { AuthServiceResponse, UserWithoutPassword } from '../types/auth'; // Import UserWithoutPassword
 
 // Generate JWT
-const generateToken = (id: string): string => {
-  return jwt.sign({ id }, process.env.JWT_SECRET as string, { expiresIn: '1h' });
+const generateToken = (id: string, role: string): string => {
+  return jwt.sign({ id, role }, process.env.JWT_SECRET as string, { expiresIn: '1h' });
 };
 
 // Register user
@@ -38,7 +38,7 @@ const register = async (name: string, email: string, password: string, role?: st
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
     };
-    return { user: userWithoutPassword, token: generateToken(user._id.toString()) };
+    return { user: userWithoutPassword, token: generateToken(user._id.toString(), user.role) };
   } else {
     throw new Error('Invalid user data');
   }
@@ -58,7 +58,7 @@ const login = async (email: string, password: string): Promise<AuthServiceRespon
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
     };
-    return { user: userWithoutPassword, token: generateToken(user._id.toString()) };
+    return { user: userWithoutPassword, token: generateToken(user._id.toString(), user.role) };
   } else {
     throw new Error('Invalid credentials');
   }
