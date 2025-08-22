@@ -4,6 +4,7 @@ export interface CsvApplicantData {
   gpa: number;
   experience: number;
   skills: string; // Assuming skills come as a comma-separated string in CSV
+  documentType: string; // Added documentType
   // Add other fields as they appear in your CSV
 }
 
@@ -13,6 +14,7 @@ export interface ProcessApplicantDataPayload {
 
 export interface UploadResponse {
   message: string;
+  file: string; // Added file property
   result: {
     success: boolean;
     savedCount: number;

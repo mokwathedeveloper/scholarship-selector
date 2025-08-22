@@ -5,6 +5,7 @@ export interface ApplicantData {
   gpa: number;
   experience: number;
   skills: string[];
+  documentType: string; // Added documentType
   score: number;
 }
 

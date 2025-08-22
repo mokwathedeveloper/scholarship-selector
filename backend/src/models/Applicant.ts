@@ -7,6 +7,7 @@ export interface IApplicant extends Document {
   gpa: number;
   experience: number;
   skills: string[];
+  documentType: string; // Added documentType field
   createdAt: Date;
   updatedAt: Date;
 }
@@ -40,6 +41,11 @@ const ApplicantSchema: Schema = new mongoose.Schema(
     skills: {
       type: [String],
       required: [true, 'Please add skills'],
+    },
+    documentType: { // Schema definition for documentType
+      type: String,
+      required: [true, 'Please add a document type'],
+      enum: ['CV', 'Transcript', 'Certificate', 'Other'], // Enforce allowed values
     },
     // Add other relevant fields for applicant data
   },
