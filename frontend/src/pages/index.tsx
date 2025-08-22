@@ -174,6 +174,29 @@ export default function Home() {
           </div>
         </div>
       )}
+
+      {/* Footer */}
+      <footer className="bg-gray-800 text-white py-8 font-inter">
+        <div className="container mx-auto px-4 text-center">
+          <div className="mb-4">
+            <p className="text-lg font-semibold">Contact Us:</p>
+            <p className="text-gray-400">Email: info@scholarshipselector.com</p>
+            <p className="text-gray-400">Phone: +1 (123) 456-7890</p>
+          </div>
+          <div className="flex justify-center space-x-6 mb-4">
+            <a href="#" className="text-gray-400 hover:text-white transition-colors duration-300">
+              <Facebook size={24} />
+            </a>
+            <a href="#" className="text-gray-400 hover:text-white transition-colors duration-300">
+              <Twitter size={24} />
+            </a>
+            <a href="#" className="text-gray-400 hover:text-white transition-colors duration-300">
+              <Linkedin size={24} />
+            </a>
+          </div>
+          <p className="text-gray-500 text-sm">&copy; {new Date().getFullYear()} Scholarship Selector. All rights reserved.</p>
+        </div>
+      </footer>
     </div>
   );
 }
