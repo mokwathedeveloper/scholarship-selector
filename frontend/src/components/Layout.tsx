@@ -1,5 +1,5 @@
 import Navbar from './Navbar';
-import Footer from './Footer';
+
 import { LayoutProps } from '../types/layout'; // Import the interface
 
 export default function Layout({ children }: LayoutProps) {
@@ -9,7 +9,7 @@ export default function Layout({ children }: LayoutProps) {
       <main className="flex-grow container mx-auto p-4">
         {children}
       </main>
-      <Footer />
+      
     </div>
   );
 }
