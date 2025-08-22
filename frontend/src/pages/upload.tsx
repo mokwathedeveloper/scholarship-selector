@@ -1,6 +1,4 @@
 import React, { useState } from "react";
-import { uploadApplicants } from "../services/api";
-import { UploadResult } from '../types/upload'; // Import UploadResult
 
 const UploadPage: React.FC = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -17,11 +15,24 @@ const UploadPage: React.FC = () => {
       setStatus("⚠️ Please select a file first.");
       return;
     }
+
+    const formData = new FormData();
+    formData.append("file", selectedFile);
+
     try {
       setStatus("⏳ Uploading...");
-      const result: UploadResult = await uploadApplicants(selectedFile); // Use UploadResult
-      setStatus(`✅ Upload successful: ${JSON.stringify(result)}`);
-    } catch (error: any) { // Keep any for now, or define a more specific error interface
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/upload`, {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+
+      const result = await response.json();
+      setStatus(`✅ ${result.message}: ${result.file}`);
+    } catch (error: any) {
       setStatus(`❌ Upload failed: ${error.message}`);
     }
   };
