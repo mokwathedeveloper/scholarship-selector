@@ -8,6 +8,22 @@ export interface IApplicant extends Document {
   experience: number;
   skills: string[];
   documentType: string; // Added documentType field
+  resumeText?: string;
+  coverLetterText?: string;
+  extracted?: {
+    skills: string[];
+    totalYearsExp: number;
+    highestEducation: {
+      level: string;
+      institution?: string;
+      graduationYear?: number;
+    };
+  };
+  assessments?: {
+    name: string;
+    score: number;
+    maxScore: number;
+  }[];
   createdAt: Date;
   updatedAt: Date;
 }
@@ -47,6 +63,28 @@ const ApplicantSchema: Schema = new mongoose.Schema(
       required: [true, 'Please add a document type'],
       enum: ['CV', 'Transcript', 'Certificate', 'Other'], // Enforce allowed values
     },
+    resumeText: {
+      type: String,
+    },
+    coverLetterText: {
+      type: String,
+    },
+    extracted: {
+      skills: [String],
+      totalYearsExp: Number,
+      highestEducation: {
+        level: String,
+        institution: String,
+        graduationYear: Number,
+      },
+    },
+    assessments: [
+      {
+        name: String,
+        score: Number,
+        maxScore: Number,
+      },
+    ],
     // Add other relevant fields for applicant data
   },
   {
