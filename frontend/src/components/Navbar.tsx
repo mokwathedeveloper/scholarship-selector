@@ -18,6 +18,15 @@ export default function Navbar() {
           <Link href="/rank" className="hover:text-gray-300">
             Rank
           </Link>
+          <Link href="/programs" className="hover:text-gray-300">
+            Programs
+          </Link>
+          <Link href="/applicants" className="hover:text-gray-300">
+            Applicants
+          </Link>
+          <Link href="/audits" className="hover:text-gray-300">
+            Audits
+          </Link>
           <Link href="/login" className="hover:text-gray-300">
             Login
           </Link>
