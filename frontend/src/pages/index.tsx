@@ -1,8 +1,38 @@
-import React from 'react';
+import React, { useState } from 'react'; // Import useState
 import Link from 'next/link';
-import { UploadCloud, Award, ShieldCheck, Plug } from 'lucide-react'; // Import Lucide icons
+import { UploadCloud, Award, ShieldCheck, Plug, ChevronDown } from 'lucide-react'; // Import Lucide icons
 
 export default function Home() {
+  const [openFAQ, setOpenFAQ] = useState<number | null>(null);
+  const [showTermsModal, setShowTermsModal] = useState(false);
+
+  const faqs = [
+    {
+      question: 'What is the Scholarship Selector?',
+      answer: 'It's an AI-powered platform that streamlines scholarship applicant selection for LSETF/PLP programs.',
+    },
+    {
+      question: 'How does it ensure fairness?',
+      answer: 'By using predefined criteria and transparent AI ranking, it minimizes human bias in the selection process.',
+    },
+    {
+      question: 'What kind of data does it analyze?',
+      answer: 'It processes resumes, cover letters, assessments, and other relevant applicant data.',
+    },
+    {
+      question: 'Can it integrate with existing systems?',
+      answer: 'Yes, it's designed for smooth integration with LSETF's upcoming LMS and other systems.',
+    },
+    {
+      question: 'Is my data secure?',
+      answer: 'We prioritize data security and privacy, employing robust measures to protect all applicant information.',
+    },
+  ];
+
+  const termsAndConditions = `
+    Welcome to Scholarship Selector. By accessing or using our platform, you agree to be bound by these Terms and Conditions. Please read them carefully. Our service provides an AI-powered tool for scholarship applicant selection. We strive for fairness and transparency in all our processes. Data submitted to the platform will be used solely for the purpose of applicant evaluation and will be handled in accordance with our Privacy Policy. We reserve the right to modify these terms at any time. Your continued use of the platform constitutes acceptance of the updated terms. For any questions, please contact us.
+  `;
+
   return (
     <div className="min-h-screen bg-gray-50 font-inter">
       {/* Hero Section */}
@@ -80,6 +110,70 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* FAQ Section */}
+      <section className="py-16 md:py-24 bg-gray-100">
+        <div className="container mx-auto px-4">
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-12 text-center">
+            Frequently Asked Questions
+          </h2>
+          <div className="max-w-3xl mx-auto">
+            {faqs.map((faq, index) => (
+              <div key={index} className="mb-4 bg-white rounded-lg shadow-md overflow-hidden">
+                <button
+                  className="w-full flex justify-between items-center p-5 font-semibold text-lg text-left text-gray-800 focus:outline-none focus:bg-gray-100 transition duration-300"
+                  onClick={() => setOpenFAQ(openFAQ === index ? null : index)}
+                >
+                  {faq.question}
+                  <ChevronDown
+                    className={`transform transition-transform duration-300 ${openFAQ === index ? 'rotate-180' : 'rotate-0'}`}
+                    size={24}
+                  />
+                </button>
+                {openFAQ === index && (
+                  <div className="p-5 pt-0 text-gray-600 border-t border-gray-200">
+                    <p>{faq.answer}</p>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Terms & Conditions Section */}
+      <section className="py-16 md:py-24 bg-white">
+        <div className="container mx-auto px-4 text-center max-w-3xl">
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-8">
+            Terms and Conditions
+          </h2>
+          <p className="text-lg text-gray-600 leading-relaxed mb-6 text-left line-clamp-3">
+            {termsAndConditions}
+          </p>
+          <button
+            onClick={() => setShowTermsModal(true)}
+            className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-full shadow-lg transition duration-300 ease-in-out transform hover:scale-105"
+          >
+            Read More
+          </button>
+        </div>
+      </section>
+
+      {/* Terms Modal */}
+      {showTermsModal && (
+        <div className="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg shadow-xl p-8 max-w-3xl w-full max-h-[90vh] overflow-y-auto relative">
+            <h2 className="text-2xl font-bold text-gray-800 mb-4">Terms and Conditions</h2>
+            <p className="text-gray-700 whitespace-pre-wrap text-left mb-6">{termsAndConditions}</p>
+            <button
+              onClick={() => setShowTermsModal(false)}
+              className="absolute top-4 right-4 text-gray-500 hover:text-gray-800 text-xl"
+            >
+              &times;
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
