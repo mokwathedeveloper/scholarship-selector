@@ -1,6 +1,6 @@
 import React, { useState } from 'react'; // Import useState
 import Link from 'next/link';
-import { UploadCloud, Award, ShieldCheck, Plug, ChevronDown } from 'lucide-react'; // Import Lucide icons
+import { UploadCloud, Award, ShieldCheck, Plug, ChevronDown, Facebook, Twitter, Linkedin } from 'lucide-react'; // Import Lucide icons
 
 export default function Home() {
   const [openFAQ, setOpenFAQ] = useState<number | null>(null);
@@ -9,7 +9,7 @@ export default function Home() {
   const faqs = [
     {
       question: 'What is the Scholarship Selector?',
-      answer: 'It's an AI-powered platform that streamlines scholarship applicant selection for LSETF/PLP programs.',
+      answer: 'It\'s an AI-powered platform that streamlines scholarship applicant selection for LSETF/PLP programs.',
     },
     {
       question: 'How does it ensure fairness?',
@@ -21,7 +21,7 @@ export default function Home() {
     },
     {
       question: 'Can it integrate with existing systems?',
-      answer: 'Yes, it's designed for smooth integration with LSETF's upcoming LMS and other systems.',
+      answer: 'Yes, it\'s designed for smooth integration with LSETF\'s upcoming LMS and other systems.',
     },
     {
       question: 'Is my data secure?',
