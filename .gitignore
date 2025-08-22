@@ -7,3 +7,10 @@ backend/package-lock.json
 frontend/node_modules/
 frontend/package-lock.json
 frontend/.next/
+
+# Uploads directory
+backend/uploads/
+
+# Temporary files
+backend/svelte-donation-platform@0.0.1
+backend/vite
