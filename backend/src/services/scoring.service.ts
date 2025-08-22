@@ -15,6 +15,14 @@ const EDUCATION_LEVEL_MAP: { [key: string]: number } = {
 class ScoringService {
   private tokenizer = new WordTokenizer();
 
+  private readonly WEIGHTS = {
+    skillsScore: 0.3,
+    experienceScore: 0.25,
+    educationScore: 0.15,
+    assessmentsScore: 0.2,
+    semanticScore: 0.1,
+  };
+
   public async rankApplicants(applicants: IApplicant[]): Promise<RankedApplicant[]> {
     const rankedApplicants = applicants.map((applicant) => {
       const scoreBreakdown = this.calculateScore(applicant);
@@ -33,9 +41,17 @@ class ScoringService {
   }
 
   private calculateTotalScore(breakdown: ScoreBreakdown): number {
-    // Simple average for now. This can be weighted.
-    const scores = Object.values(breakdown);
-    return scores.reduce((sum, score) => sum + score, 0) / scores.length;
+    let weightedSum = 0;
+    let totalWeight = 0;
+
+    for (const key in breakdown) {
+      if (this.WEIGHTS.hasOwnProperty(key)) {
+        weightedSum += breakdown[key as keyof ScoreBreakdown] * this.WEIGHTS[key as keyof typeof this.WEIGHTS];
+        totalWeight += this.WEIGHTS[key as keyof typeof this.WEIGHTS];
+      }
+    }
+
+    return totalWeight > 0 ? weightedSum / totalWeight : 0;
   }
 
   private calculateScore(applicant: IApplicant): ScoreBreakdown {
@@ -101,6 +117,9 @@ class ScoringService {
     const jobDescVector = this.createVector(jobDescTokens, vocabulary);
 
     const similarity = cosineSimilarity(resumeVector, jobDescVector);
+    if (similarity === null || isNaN(similarity)) {
+      return 0; // Or handle as appropriate, e.g., throw an error or log
+    }
     return Math.round(similarity * 100);
   }
 
