@@ -125,3 +125,23 @@ export const getAllUsers = async (): Promise<User[]> => {
     throw error.response?.data || error.message;
   }
 };
+
+// Function to update user by admin
+export const updateUserByAdmin = async (id: string, userData: Partial<User> & { password?: string }): Promise<User> => {
+  try {
+    const response = await api.put<User>(`/admin/users/${id}`, userData);
+    return response.data;
+  } catch (error: any) {
+    throw error.response?.data || error.message;
+  }
+};
+
+// Function to delete user by admin
+export const deleteUserByAdmin = async (id: string): Promise<{ message: string }> => {
+  try {
+    const response = await api.delete<{ message: string }>(`/admin/users/${id}`);
+    return response.data;
+  } catch (error: any) {
+    throw error.response?.data || error.message;
+  }
+};
