@@ -18,10 +18,16 @@ const Login: React.FC = () => {
 
     try {
       const data = await loginUser(email, password);
-      // Handle successful login (e.g., save token, redirect)
-      console.log('Login successful:', data);
-      // Example: Redirect to home or dashboard
-      router.push('/');
+      if (data.token) {
+        localStorage.setItem('token', data.token);
+      }
+
+      // Redirect based on role
+      if (data.user?.role === 'admin') {
+        router.push('/admin/dashboard');
+      } else {
+        router.push('/user/dashboard');
+      }
     } catch (err: any) {
       setError(err.message || 'Login failed. Please check your credentials.');
     } finally {
