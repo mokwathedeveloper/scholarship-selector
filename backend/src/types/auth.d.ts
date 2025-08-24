@@ -31,4 +31,5 @@ export interface AuthResponse {
 export interface AuthServiceResponse {
   user: UserWithoutPassword;
   token: string;
+  refreshToken?: string; // Add refresh token
 }

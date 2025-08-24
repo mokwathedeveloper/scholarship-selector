@@ -2,11 +2,16 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import User from '../models/User';
 import { IUser } from '../models/User';
-import { AuthServiceResponse, UserWithoutPassword } from '../types/auth'; // Import UserWithoutPassword
+import { AuthServiceResponse, UserWithoutPassword } from '../types/auth';
 
-// Generate JWT
+// Generate Access Token
 const generateToken = (id: string, role: string): string => {
-  return jwt.sign({ id, role }, process.env.JWT_SECRET as string, { expiresIn: '1h' });
+  return jwt.sign({ id, role }, process.env.JWT_SECRET as string, { expiresIn: '15m' }); // Short expiration for access token
+};
+
+// Generate Refresh Token
+const generateRefreshToken = (id: string): string => {
+  return jwt.sign({ id }, process.env.REFRESH_TOKEN_SECRET as string, { expiresIn: '7d' }); // Longer expiration for refresh token
 };
 
 // Register user
@@ -30,7 +35,14 @@ const register = async (name: string, email: string, password: string, role?: st
   });
 
   if (user) {
-    const userWithoutPassword: UserWithoutPassword = { // Use UserWithoutPassword
+    const accessToken = generateToken(user._id.toString(), user.role);
+    const refreshToken = generateRefreshToken(user._id.toString());
+
+    // Store refresh token in user document
+    user.refreshToken = user.refreshToken ? [...user.refreshToken, refreshToken] : [refreshToken];
+    await user.save();
+
+    const userWithoutPassword: UserWithoutPassword = {
       _id: user._id,
       name: user.name,
       email: user.email,
@@ -38,7 +50,7 @@ const register = async (name: string, email: string, password: string, role?: st
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
     };
-    return { user: userWithoutPassword, token: generateToken(user._id.toString(), user.role) };
+    return { user: userWithoutPassword, token: accessToken, refreshToken };
   } else {
     throw new Error('Invalid user data');
   }
@@ -50,7 +62,14 @@ const login = async (email: string, password: string): Promise<AuthServiceRespon
   const user = await User.findOne({ email }).exec();
 
   if (user && (await bcrypt.compare(password, user.password as string))) {
-    const userWithoutPassword: UserWithoutPassword = { // Use UserWithoutPassword
+    const accessToken = generateToken(user._id.toString(), user.role);
+    const refreshToken = generateRefreshToken(user._id.toString());
+
+    // Store refresh token in user document
+    user.refreshToken = user.refreshToken ? [...user.refreshToken, refreshToken] : [refreshToken];
+    await user.save();
+
+    const userWithoutPassword: UserWithoutPassword = {
       _id: user._id,
       name: user.name,
       email: user.email,
@@ -58,7 +77,7 @@ const login = async (email: string, password: string): Promise<AuthServiceRespon
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
     };
-    return { user: userWithoutPassword, token: generateToken(user._id.toString(), user.role) };
+    return { user: userWithoutPassword, token: accessToken, refreshToken };
   } else {
     throw new Error('Invalid credentials');
   }

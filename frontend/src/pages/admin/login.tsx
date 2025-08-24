@@ -1,46 +1,48 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
-// Removed useRouter as window.location.href is used for redirect
+import { useAuth } from '../../context/AuthContext';
+import { useRouter } from 'next/router';
+import { toast } from 'react-toastify';
+import { useForm } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
+import * as yup from 'yup';
+import { loginAdmin } from '../../services/authApi'; // Import loginAdmin from authApi
+
+// Validation Schema
+const schema = yup.object().shape({
+  email: yup.string().email('Invalid email').required('Email is required'),
+  password: yup.string().required('Password is required'),
+});
 
 const AdminLogin = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  // Removed router as window.location.href is used for redirect
+  const [error, setError] = useState(''); // error state remains local for general API errors
+  const { login: authLogin, setLoading: authSetLoading, loading: authLoading } = useAuth();
+  const router = useRouter();
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setError(''); // Clear previous errors
+  // Initialize useForm
+  const { register, handleSubmit, formState: { errors } } = useForm({
+    resolver: yupResolver(schema),
+  });
+
+  // onSubmit now receives validated data
+  const onSubmit = async (formData: { email: string; password: string }) => {
+    authSetLoading(true);
+    setError(''); // Clear previous general API errors
 
     try {
-      const res = await fetch(`/api/auth/admin/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
+      const data = await loginAdmin(formData.email, formData.password); // Use loginAdmin from authApi
 
-      if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.message || "Admin login failed");
+      if (!data.token || !data.user || !data.user.role) {
+        throw new Error("Login successful, but token or role missing.");
       }
 
-      const data = await res.json();
-      if (data.token) {
-        localStorage.setItem("token", data.token);
-        // Store userRole if provided by the backend
-        if (data.user && data.user.role) {
-          localStorage.setItem('userRole', data.user.role);
-        }
-      }
-
-      window.location.href = "/admin/dashboard"; // Always redirect to admin dashboard for admin login
+      authLogin(data.token, data.user.role);
+      router.push("/admin/dashboard");
     } catch (err: any) {
-      alert(err.message); // Use alert for error as per prompt
-      setError(err.message); // Also set error state for display in the component
+      toast.error(err.message);
+      setError(err.message);
     } finally {
-      setLoading(false);
+      authSetLoading(false);
     }
   };
 
@@ -49,7 +51,7 @@ const AdminLogin = () => {
       <div className="max-w-md w-full bg-white p-8 rounded-lg shadow-md">
         <h1 className="text-3xl font-bold text-center text-gray-800 mb-8">Admin Login</h1>
         {error && <p className="text-red-500 text-center mb-4">{error}</p>}
-        <form onSubmit={handleLogin}>
+        <form onSubmit={handleSubmit(onSubmit)}>
           <div className="mb-4">
             <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="email">
               Email
@@ -59,10 +61,9 @@ const AdminLogin = () => {
               id="email"
               type="email"
               placeholder="Email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
+              {...register('email')}
             />
+            {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>}
           </div>
           <div className="mb-6">
             <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="password">
@@ -73,18 +74,17 @@ const AdminLogin = () => {
               id="password"
               type="password"
               placeholder="******************"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
+              {...register('password')}
             />
+            {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password.message}</p>}
           </div>
           <div className="flex items-center justify-between">
             <button
               className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full focus:outline-none focus:shadow-outline w-full"
               type="submit"
-              disabled={loading}
+              disabled={authLoading}
             >
-              {loading ? 'Logging in...' : 'Login'}
+              {authLoading ? 'Logging in...' : 'Login'}
             </button>
           </div>
         </form>

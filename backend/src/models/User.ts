@@ -1,3 +1,4 @@
+// TODO: Clarify role naming consistency: 'user' vs 'client' throughout the application.
 import mongoose, { Document, Schema } from 'mongoose';
 
 export interface IUser extends Document {
@@ -5,7 +6,9 @@ export interface IUser extends Document {
   name: string;
   email: string;
   password?: string; // Password might not always be returned
-  role: 'user' | 'admin';
+  role: 'admin' | 'client';
+  refreshToken?: string[]; // Add refresh token field
+  comparePassword: (candidatePassword: string) => Promise<boolean>;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -34,6 +37,9 @@ const UserSchema: Schema = new mongoose.Schema(
       type: String,
       enum: ['user', 'admin'],
       default: 'user',
+    },
+    refreshToken: {
+      type: [String], // Array of strings for refresh tokens
     },
   },
   {
