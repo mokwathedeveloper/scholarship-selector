@@ -1,13 +1,10 @@
+
 import React from 'react';
 
-const UserDashboard: React.FC = () => {
+const UserDashboard = () => {
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-      <div className="bg-white p-8 rounded-lg shadow-md text-center">
-        <h1 className="text-3xl font-bold text-gray-800 mb-4">Welcome to your User Dashboard!</h1>
-        <p className="text-gray-600">This is a placeholder for user-specific content.</p>
-        <p className="text-gray-600">You can view your profile, scholarships, and application status here.</p>
-      </div>
+    <div className="min-h-screen bg-gray-50 flex flex-col justify-center items-center">
+      <h1 className="text-3xl font-bold text-center text-gray-800 mb-8">Welcome to your Dashboard</h1>
     </div>
   );
 };
