@@ -14,3 +14,8 @@ backend/uploads/
 # Temporary files
 backend/svelte-donation-platform@0.0.1
 backend/vite
+next/
+backend/jest/
+backend/__mocks__/
+backend/applicant-ranking-backend@1.0.0
+scholarship-selector-frontend@0.1.0
