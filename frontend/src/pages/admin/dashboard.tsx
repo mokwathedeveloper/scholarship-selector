@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import withAuth from '../../components/withAuth';
-import { getAllUsers, deleteUserByAdmin, updateUserByAdmin } from '../../services/api'; // Import new API functions
+import { getAllUsers, deleteUserByAdmin } from '../../services/api'; // Removed updateUserByAdmin as it's used in modal
 import { User } from '../../types/user';
+import EditUserModal from '../../components/EditUserModal'; // Import the new modal component
 
 const AdminDashboard: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [editingUser, setEditingUser] = useState<User | null>(null); // State for user being edited
+  const [showEditModal, setShowEditModal] = useState(false); // State to control modal visibility
 
   const fetchUsers = async () => {
     try {
@@ -38,8 +40,18 @@ const AdminDashboard: React.FC = () => {
 
   const handleEdit = (user: User) => {
     setEditingUser(user);
-    // In a real app, you'd open a modal or navigate to an edit page here
-    alert(`Editing user: ${user.name}`);
+    setShowEditModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setEditingUser(null);
+    setShowEditModal(false);
+  };
+
+  const handleSaveEdit = (updatedUser: User) => {
+    // Update the user in the list
+    setUsers(users.map((user) => (user._id === updatedUser._id ? updatedUser : user)));
+    handleCloseModal();
   };
 
   return (
@@ -89,6 +101,14 @@ const AdminDashboard: React.FC = () => {
           <p className="text-center text-gray-500">No users found.</p>
         )}
       </div>
+
+      {showEditModal && editingUser && (
+        <EditUserModal
+          user={editingUser}
+          onClose={handleCloseModal}
+          onSave={handleSaveEdit}
+        />
+      )}
     </div>
   );
 };
