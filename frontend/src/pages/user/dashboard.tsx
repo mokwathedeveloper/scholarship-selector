@@ -9,4 +9,6 @@ const UserDashboard = () => {
   );
 };
 
-export default UserDashboard;
+import withAuth from '../../components/withAuth';
+
+export default withAuth(UserDashboard, { roles: ['user', 'admin'] });

@@ -1,43 +1,20 @@
-import jwt_decode from 'jwt-decode';
 
-interface DecodedToken {
-  id: string;
-  role: string;
-  exp: number; // Expiration time
-}
+import { jwtDecode } from 'jwt-decode';
 
-export const getToken = (): string | null => {
+export const getToken = () => {
   return localStorage.getItem('token');
 };
 
-export const getDecodedToken = (): DecodedToken | null => {
+export const getUser = () => {
   const token = getToken();
   if (!token) {
     return null;
   }
   try {
-    const decoded = jwt_decode<DecodedToken>(token);
-    // Check if token is expired
-    if (decoded.exp * 1000 < Date.now()) {
-      localStorage.removeItem('token'); // Remove expired token
-      return null;
-    }
-    return decoded;
+    const decodedUser = jwtDecode(token);
+    return decodedUser;
   } catch (error) {
     console.error('Error decoding token:', error);
     return null;
   }
-};
-
-export const isAuthenticated = (): boolean => {
-  return !!getDecodedToken();
-};
-
-export const getUserRole = (): string | null => {
-  const decodedToken = getDecodedToken();
-  return decodedToken ? decodedToken.role : null;
-};
-
-export const logout = (): void => {
-  localStorage.removeItem('token');
 };
