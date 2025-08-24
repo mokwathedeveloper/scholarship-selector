@@ -1,70 +1,94 @@
+
 import React, { useState } from 'react';
-import Head from 'next/head';
 import Link from 'next/link';
-import { loginUser } from '../services/api'; // Will create this function
 import { useRouter } from 'next/router';
 
-const Login: React.FC = () => {
+const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState<string | null>(null);
+  const [role, setRole] = useState<'client' | 'admin'>('client');
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
   const router = useRouter();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError(null);
+    setError('');
 
     try {
-      const data = await loginUser(email, password);
+      const res = await fetch(`/api/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || 'Login failed');
+      }
+
+      const data = await res.json();
       if (data.token) {
         localStorage.setItem('token', data.token);
       }
 
       // Redirect based on role
-      if (data.user?.role === 'admin') {
+      if (data.user.role === 'admin') {
         router.push('/admin/dashboard');
       } else {
         router.push('/user/dashboard');
       }
     } catch (err: any) {
-      setError(err.message || 'Login failed. Please check your credentials.');
+      setError(err.message);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <Head>
-        <title>Login - Scholarship Selector</title>
-      </Head>
-      <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
-        <h1 className="text-3xl font-bold text-center text-gray-800 mb-6">Login</h1>
-        {error && <p className="text-red-600 text-center mb-4">{error}</p>}
-        <form onSubmit={handleSubmit}>
+    <div className="min-h-screen bg-gray-50 flex flex-col justify-center items-center">
+      <div className="max-w-md w-full bg-white p-8 rounded-lg shadow-md">
+        <h1 className="text-3xl font-bold text-center text-gray-800 mb-8">Login</h1>
+        {error && <p className="text-red-500 text-center mb-4">{error}</p>}
+        <form onSubmit={handleLogin}>
           <div className="mb-4">
-            <label htmlFor="email" className="block text-gray-700 text-sm font-bold mb-2">
-              Email:
+            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="role">
+              Role
+            </label>
+            <select
+              id="role"
+              value={role}
+              onChange={(e) => setRole(e.target.value as 'client' | 'admin')}
+              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+            >
+              <option value="client">Client</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
+          <div className="mb-4">
+            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="email">
+              Email
             </label>
             <input
-              type="email"
-              id="email"
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              id="email"
+              type="email"
+              placeholder="Email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
             />
           </div>
           <div className="mb-6">
-            <label htmlFor="password" className="block text-gray-700 text-sm font-bold mb-2">
-              Password:
+            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="password">
+              Password
             </label>
             <input
-              type="password"
-              id="password"
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline"
+              id="password"
+              type="password"
+              placeholder="******************"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
@@ -72,17 +96,20 @@ const Login: React.FC = () => {
           </div>
           <div className="flex items-center justify-between">
             <button
+              className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full focus:outline-none focus:shadow-outline w-full"
               type="submit"
-              className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
               disabled={loading}
             >
               {loading ? 'Logging in...' : 'Login'}
             </button>
-            <Link href="/register" className="inline-block align-baseline font-bold text-sm text-blue-600 hover:text-blue-800">
-              Don't have an account? Register
-            </Link>
           </div>
         </form>
+        <p className="text-center text-gray-500 text-xs mt-4">
+          Don't have an account?{' '}
+          <Link href="/register">
+            <a className="text-blue-600 hover:text-blue-800">Sign up</a>
+          </Link>
+        </p>
       </div>
     </div>
   );
