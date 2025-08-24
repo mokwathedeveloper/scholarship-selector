@@ -1,4 +1,5 @@
 import React from 'react';
+import withAuth from '../../components/withAuth';
 
 const AdminDashboard: React.FC = () => {
   return (
@@ -12,4 +13,4 @@ const AdminDashboard: React.FC = () => {
   );
 };
 
-export default AdminDashboard;
+export default withAuth(AdminDashboard, { roles: ['admin'] });
