@@ -106,6 +106,16 @@ export const getUserProfile = async (): Promise<User> => {
   }
 };
 
+// Function to update user profile
+export const updateUserProfile = async (userData: Partial<User> & { password?: string }): Promise<User> => {
+  try {
+    const response = await api.put<User>('/user/profile', userData);
+    return response.data;
+  } catch (error: any) {
+    throw error.response?.data || error.message;
+  }
+};
+
 // Function to get all users (admin)
 export const getAllUsers = async (): Promise<User[]> => {
   try {

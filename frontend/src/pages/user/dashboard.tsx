@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/router'; // Import useRouter
 import withAuth from '../../components/withAuth';
 import { getUserProfile } from '../../services/api';
 import { User } from '../../types/user';
@@ -7,6 +8,7 @@ const UserDashboard: React.FC = () => {
   const [user, setUser] = useState<User | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const router = useRouter(); // Initialize useRouter
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -36,6 +38,12 @@ const UserDashboard: React.FC = () => {
               <p><span className="font-bold">Email:</span> {user.email}</p>
               <p><span className="font-bold">Role:</span> {user.role}</p>
             </div>
+            <button
+              onClick={() => router.push('/user/edit-profile')}
+              className="mt-4 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+            >
+              Edit Profile
+            </button>
           </div>
         )}
       </div>
