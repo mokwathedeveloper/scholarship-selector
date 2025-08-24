@@ -67,4 +67,4 @@ const UploadPage: React.FC = () => {
 };
 
 // Wrap the component with withAuth
-export default withAuth(UploadPage, { roles: ['user', 'admin'] });
+export default withAuth(UploadPage, ['client']);

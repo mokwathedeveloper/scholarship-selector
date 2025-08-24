@@ -65,4 +65,4 @@ const ApplicantsPage: React.FC = () => {
   );
 };
 
-export default withAuth(ApplicantsPage, { roles: ['admin'] });
+export default withAuth(ApplicantsPage, ['client']);

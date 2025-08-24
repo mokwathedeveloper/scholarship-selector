@@ -1,4 +1,5 @@
 import React from 'react';
+import withAuth from '../components/withAuth'; // Import withAuth HOC
 
 const AuditsPage: React.FC = () => {
   return (
@@ -10,4 +11,4 @@ const AuditsPage: React.FC = () => {
   );
 };
 
-export default AuditsPage;
+export default withAuth(AuditsPage, ['client']); // Wrap with withAuth HOC

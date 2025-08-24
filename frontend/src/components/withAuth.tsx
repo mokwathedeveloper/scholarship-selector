@@ -1,38 +1,45 @@
 import { useRouter } from 'next/router';
-import { useEffect, ComponentType } from 'react';
-import { getUser } from '../utils/auth';
+import { useEffect } from 'react';
 
-interface WithAuthProps {
-  roles: string[];
-}
-
-const withAuth = <P extends object>(
-  WrappedComponent: ComponentType<P>,
-  options: WithAuthProps
-) => {
-  const AuthComponent = (props: P) => {
+const withAuth = (WrappedComponent: React.ComponentType, allowedRoles: string[]) => {
+  const Wrapper = (props: any) => {
     const router = useRouter();
-    const user = getUser();
 
     useEffect(() => {
-      if (!user) {
+      const token = localStorage.getItem('token');
+      const userRole = localStorage.getItem('userRole');
+
+      if (!token) {
+        // No token, redirect to login
         router.push('/login');
-        return;
+      } else {
+        // Token exists, check role
+        if (!userRole || !allowedRoles.includes(userRole)) {
+          // Wrong role, redirect to appropriate dashboard
+          if (userRole === 'admin') {
+            router.push('/admin/dashboard');
+          } else if (userRole === 'client') {
+            router.push('/user/dashboard');
+          } else {
+            // Unknown role or no role, redirect to generic login
+            router.push('/login');
+          }
+        }
       }
+    }, [router, allowedRoles]);
 
-      if (options.roles && !options.roles.includes(user.role)) {
-        router.push('/login'); // Or a dedicated unauthorized page
-      }
-    }, [user, router]);
-
-    if (!user || (options.roles && !options.roles.includes(user.role))) {
-      return null; // Or a loading spinner
+    // Render the wrapped component only if authenticated and authorized
+    const token = localStorage.getItem('token');
+    const userRole = localStorage.getItem('userRole');
+    if (token && userRole && allowedRoles.includes(userRole)) {
+      return <WrappedComponent {...props} />;
     }
 
-    return <WrappedComponent {...props} />;
+    // Optionally, render a loading spinner or null while checking auth
+    return null;
   };
 
-  return AuthComponent;
+  return Wrapper;
 };
 
 export default withAuth;

@@ -39,6 +39,7 @@ import exportRoutes from './routes/export.routes';
 import webhookRoutes from './routes/webhook.routes'; // New import
 import userRoutes from './routes/userRoutes'; // New import for user routes
 import adminRoutes from './routes/adminRoutes'; // New import for admin routes
+import { protect, authorize } from './middleware/authMiddleware'; // Import auth middleware
 
 app.use('/api/upload', uploadRoutes);
 app.use('/api/rank', rankRoutes);
@@ -47,8 +48,8 @@ app.use('/api/criteria', criteriaRoutes);
 app.use('/api/applicants', applicantRoutes);
 app.use('/api/export', exportRoutes);
 app.use('/api/webhooks', webhookRoutes); // New route
-app.use('/api/user', userRoutes); // Use user routes
-app.use('/api/admin', adminRoutes); // Use admin routes
+app.use('/api/user', protect, authorize('client'), userRoutes); // Protect user routes
+app.use('/api/admin', protect, authorize('admin'), adminRoutes); // Protect admin routes
 
 // Basic route
 app.get('/', (req: Request, res: Response) => {

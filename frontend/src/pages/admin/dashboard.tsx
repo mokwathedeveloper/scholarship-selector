@@ -1,5 +1,6 @@
 
 import React from 'react';
+import withAuth from '../../components/withAuth'; // Import withAuth HOC
 
 const AdminDashboard = () => {
   return (
@@ -9,4 +10,4 @@ const AdminDashboard = () => {
   );
 };
 
-export default AdminDashboard;
+export default withAuth(AdminDashboard, ['admin']); // Wrap with withAuth HOC
