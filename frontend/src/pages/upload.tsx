@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { uploadApplicants } from "../services/api";
+import withAuth from "../components/withAuth"; // Import the HOC
 
 const UploadPage: React.FC = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -65,4 +66,5 @@ const UploadPage: React.FC = () => {
   );
 };
 
-export default UploadPage;
+// Wrap the component with withAuth
+export default withAuth(UploadPage, { roles: ['user', 'admin'] });

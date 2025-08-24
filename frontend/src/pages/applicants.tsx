@@ -1,4 +1,5 @@
 import React from 'react';
+import withAuth from '../components/withAuth'; // Import the HOC
 
 const ApplicantsPage: React.FC = () => {
   return (
@@ -10,4 +11,5 @@ const ApplicantsPage: React.FC = () => {
   );
 };
 
-export default ApplicantsPage;
+// Wrap the component with withAuth, restricting to admin role
+export default withAuth(ApplicantsPage, { roles: ['admin'] });
