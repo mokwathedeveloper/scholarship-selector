@@ -1,10 +1,8 @@
-
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { registerUser } from '../services/api'; // Import the registerUser API call
 
-const Register = () => {
+const ClientRegister = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -18,8 +16,18 @@ const Register = () => {
     setError('');
 
     try {
-      await registerUser(name, email, password, 'user'); // Explicitly register as 'user'
-      router.push('/client/login'); // Redirect to client login after successful registration
+      const res = await fetch(`/api/auth/client/signup`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, password }),
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || 'Client registration failed');
+      }
+
+      router.push('/client/login');
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -86,8 +94,8 @@ const Register = () => {
           </div>
         </form>
         <p className="text-center text-gray-500 text-xs mt-4">
-          Already have an account?{' '}
-          <Link href="/login">
+          Already have a client account?{' '}
+          <Link href="/client/login">
             <a className="text-blue-600 hover:text-blue-800">Login</a>
           </Link>
         </p>
@@ -96,4 +104,4 @@ const Register = () => {
   );
 };
 
-export default Register;
+export default ClientRegister;

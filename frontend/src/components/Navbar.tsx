@@ -67,14 +67,26 @@ export default function Navbar() {
               </button>
             </>
           ) : (
-            <>
-              <Link href="/login" className="hover:text-gray-300 flex items-center">
-                <LogIn className="mr-1" size={18} /> Login
-              </Link>
-              <Link href="/register" className="hover:text-gray-300 flex items-center">
-                <UserPlus className="mr-1" size={18} /> Register
-              </Link>
-            </>
+            <div className="flex space-x-4">
+              <div className="relative group">
+                <button className="hover:text-gray-300 flex items-center bg-transparent border-none text-white cursor-pointer">
+                  <LogIn className="mr-1" size={18} /> Login
+                </button>
+                <div className="absolute hidden group-hover:block bg-gray-700 text-white rounded-md shadow-lg py-1 w-32 top-full left-1/2 -translate-x-1/2 mt-2">
+                  <Link href="/client/login" className="block px-4 py-2 hover:bg-gray-600">Client Login</Link>
+                  <Link href="/admin/login" className="block px-4 py-2 hover:bg-gray-600">Admin Login</Link>
+                </div>
+              </div>
+              <div className="relative group">
+                <button className="hover:text-gray-300 flex items-center bg-transparent border-none text-white cursor-pointer">
+                  <UserPlus className="mr-1" size={18} /> Register
+                </button>
+                <div className="absolute hidden group-hover:block bg-gray-700 text-white rounded-md shadow-lg py-1 w-32 top-full left-1/2 -translate-x-1/2 mt-2">
+                  <Link href="/client/signup" className="block px-4 py-2 hover:bg-gray-600">Client Signup</Link>
+                  <Link href="/admin/signup" className="block px-4 py-2 hover:bg-gray-600">Admin Signup</Link>
+                </div>
+              </div>
+            </div>
           )}
         </div>
       </div>

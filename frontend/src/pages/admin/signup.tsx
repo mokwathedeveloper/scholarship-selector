@@ -1,10 +1,8 @@
-
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { registerUser } from '../services/api'; // Import the registerUser API call
 
-const Register = () => {
+const AdminRegister = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -18,8 +16,18 @@ const Register = () => {
     setError('');
 
     try {
-      await registerUser(name, email, password, 'user'); // Explicitly register as 'user'
-      router.push('/client/login'); // Redirect to client login after successful registration
+      const res = await fetch(`/api/auth/admin/signup`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, password }),
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || 'Admin registration failed');
+      }
+
+      router.push('/admin/login');
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -30,7 +38,7 @@ const Register = () => {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center items-center">
       <div className="max-w-md w-full bg-white p-8 rounded-lg shadow-md">
-        <h1 className="text-3xl font-bold text-center text-gray-800 mb-8">Create Client Account</h1>
+        <h1 className="text-3xl font-bold text-center text-gray-800 mb-8">Create Admin Account</h1>
         {error && <p className="text-red-500 text-center mb-4">{error}</p>}
         <form onSubmit={handleRegister}>
           <div className="mb-4">
@@ -86,8 +94,8 @@ const Register = () => {
           </div>
         </form>
         <p className="text-center text-gray-500 text-xs mt-4">
-          Already have an account?{' '}
-          <Link href="/login">
+          Already have an admin account?{' '}
+          <Link href="/admin/login">
             <a className="text-blue-600 hover:text-blue-800">Login</a>
           </Link>
         </p>
@@ -96,4 +104,4 @@ const Register = () => {
   );
 };
 
-export default Register;
+export default AdminRegister;
