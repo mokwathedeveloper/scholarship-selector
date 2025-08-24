@@ -1,4 +1,5 @@
-import { register as authRegister, login as authLogin } from '../services/authService';
+import { register as authRegister, login as authLogin, generateToken, generateRefreshToken } from '../services/authService';
+import logger from '../utils/logger'; // Import logger
 import asyncHandler from '../utils/asyncHandler';
 import { Request, Response } from 'express';
 import { RegisterRequestBody, LoginRequestBody, AuthResponse, UserWithoutPassword } from '../types/auth'; // Import UserWithoutPassword
@@ -19,8 +20,10 @@ const registerUser = asyncHandler(async (req: Request<{}, {}, RegisterRequestBod
       createdAt: userResult.user.createdAt,
       updatedAt: userResult.user.updatedAt,
     };
-    res.status(201).json({ message: 'User registered successfully', user: userWithoutPassword });
+    logger.info(`User registered successfully: ${userResult.user.email}`);
+    res.status(201).json({ message: 'User registered successfully', user: userWithoutPassword, token: userResult.token, refreshToken: userResult.refreshToken });
   } else {
+    logger.error(`Failed to register user: ${email}`);
     res.status(500).json({ message: 'Failed to register user' });
   }
 });
@@ -32,6 +35,7 @@ const loginUser = asyncHandler(async (req: Request<{}, {}, LoginRequestBody>, re
   const { email, password } = req.body;
   const { user, token } = await authLogin(email, password);
   if (user) {
+    if (user && (await bcrypt.compare(password, user.password as string))) {
     const userWithoutPassword: UserWithoutPassword = { // Use UserWithoutPassword
       _id: user._id,
       name: user.name,
@@ -40,11 +44,13 @@ const loginUser = asyncHandler(async (req: Request<{}, {}, LoginRequestBody>, re
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
     };
-    res.status(200).json({ message: 'User logged in successfully', user: userWithoutPassword, token });
+    logger.info(`User logged in successfully: ${user.email}`);
+    res.status(200).json({ message: 'User logged in successfully', user: userWithoutPassword, token, refreshToken });
   } else {
+    logger.warn(`Failed login attempt for user: ${email}`);
     res.status(401).json({ message: 'Invalid credentials' });
   }
-});
+}););
 
 // @desc    Register a new admin
 // @route   POST /api/auth/admin/signup
@@ -61,8 +67,10 @@ const registerAdmin = asyncHandler(async (req: Request<{}, {}, RegisterRequestBo
       createdAt: userResult.user.createdAt,
       updatedAt: userResult.user.updatedAt,
     };
-    res.status(201).json({ message: 'Admin registered successfully', user: userWithoutPassword });
+    logger.info(`Admin registered successfully: ${userResult.user.email}`);
+    res.status(201).json({ message: 'Admin registered successfully', user: userWithoutPassword, token: userResult.token, refreshToken: userResult.refreshToken });
   } else {
+    logger.error(`Failed to register admin: ${email}`);
     res.status(500).json({ message: 'Failed to register admin' });
   }
 });
@@ -82,8 +90,10 @@ const loginAdmin = asyncHandler(async (req: Request<{}, {}, LoginRequestBody>, r
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
     };
-    res.status(200).json({ message: 'Admin logged in successfully', user: userWithoutPassword, token });
+    logger.info(`Admin logged in successfully: ${user.email}`);
+    res.status(200).json({ message: 'Admin logged in successfully', user: userWithoutPassword, token, refreshToken });
   } else {
+    logger.warn(`Failed login attempt for admin: ${email}`);
     res.status(401).json({ message: 'Invalid credentials or not an admin' });
   }
 });
@@ -103,8 +113,10 @@ const registerClient = asyncHandler(async (req: Request<{}, {}, RegisterRequestB
       createdAt: userResult.user.createdAt,
       updatedAt: userResult.user.updatedAt,
     };
-    res.status(201).json({ message: 'Client registered successfully', user: userWithoutPassword });
+    logger.info(`Client registered successfully: ${userResult.user.email}`);
+    res.status(201).json({ message: 'Client registered successfully', user: userWithoutPassword, token: userResult.token, refreshToken: userResult.refreshToken });
   } else {
+    logger.error(`Failed to register client: ${email}`);
     res.status(500).json({ message: 'Failed to register client' });
   }
 });
@@ -124,10 +136,69 @@ const loginClient = asyncHandler(async (req: Request<{}, {}, LoginRequestBody>, 
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
     };
-    res.status(200).json({ message: 'Client logged in successfully', user: userWithoutPassword, token });
+    logger.info(`Client logged in successfully: ${user.email}`);
+    res.status(200).json({ message: 'Client logged in successfully', user: userWithoutPassword, token, refreshToken });
   } else {
+    logger.warn(`Failed login attempt for client: ${email}`);
     res.status(401).json({ message: 'Invalid credentials or not a client' });
   }
 });
 
-export { registerUser, loginUser, registerAdmin, loginAdmin, registerClient, loginClient };
+// @desc    Refresh Access Token
+// @route   POST /api/auth/refresh
+// @access  Public (with refresh token)
+const refreshAccessToken = asyncHandler(async (req: Request, res: Response) => {
+  const { refreshToken } = req.body;
+
+  if (!refreshToken) {
+    res.status(400).json({ message: 'Refresh token is required' });
+    return;
+  }
+
+  try {
+    // Verify refresh token
+    const decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET as string) as { id: string };
+
+    // Find user by ID
+    const user = await User.findById(decoded.id).exec();
+
+    if (!user) {
+      res.status(401).json({ message: 'Invalid refresh token: User not found' });
+      return;
+    }
+
+    // Check if refresh token exists in user's document
+    if (!user.refreshToken || !user.refreshToken.includes(refreshToken)) {
+      // If token is found but not in user's document, it might be a revoked token or token reuse attempt
+      // Invalidate all refresh tokens for this user to prevent further unauthorized access
+      user.refreshToken = [];
+      await user.save();
+      res.status(401).json({ message: 'Invalid refresh token: Token not found or reused' });
+      return;
+    }
+
+    // Remove the used refresh token from the user's document
+    user.refreshToken = user.refreshToken.filter(token => token !== refreshToken);
+
+    // Generate new access token and new refresh token
+    const newAccessToken = generateToken(user._id.toString(), user.role);
+    const newRefreshToken = generateRefreshToken(user._id.toString());
+
+    // Add the new refresh token to the user's document
+    user.refreshToken.push(newRefreshToken);
+    await user.save();
+
+    logger.info(`Access token refreshed successfully for user: ${user.email}`);
+    res.status(200).json({
+      message: 'Access token refreshed successfully',
+      token: newAccessToken,
+      refreshToken: newRefreshToken,
+    });
+
+  } catch (error: any) {
+    logger.error(`Failed to refresh access token: ${error.message}`);
+    res.status(401).json({ message: 'Invalid refresh token' });
+  }
+});
+
+export { registerUser, loginUser, registerAdmin, loginAdmin, registerClient, loginClient, refreshAccessToken };

@@ -3,6 +3,7 @@ dotenv.config();
 import express, { Request, Response, NextFunction } from 'express';
 import connectDB from './config/db';
 import { errorHandler } from './middleware/errorMiddleware';
+import logger from './utils/logger'; // Import logger
 import cors from 'cors';
 import morgan from 'morgan'; // Import morgan for logging
 import fs from 'fs';

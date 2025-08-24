@@ -1,49 +1,45 @@
-
 import React, { useState } from 'react';
 import Link from 'next/link';
-// Removed useRouter as window.location.href is used for redirect
+import { useAuth } from '../context/AuthContext';
+import { useRouter } from 'next/router';
+import { toast } from 'react-toastify';
+import { useForm } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
+import * as yup from 'yup';
+import { registerUser } from '../services/authApi'; // Import registerUser from authApi
+
+// Validation Schema
+const schema = yup.object().shape({
+  name: yup.string().required('Name is required'),
+  email: yup.string().email('Invalid email').required('Email is required'),
+  password: yup.string().min(6, 'Password must be at least 6 characters').required('Password is required'),
+});
 
 const Register = () => {
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  // Removed router as window.location.href is used for redirect
+  const [error, setError] = useState(''); // error state remains local for general API errors
+  const { setLoading: authSetLoading, loading: authLoading } = useAuth();
+  const router = useRouter();
 
-  const handleRegister = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setError(''); // Clear previous errors
+  // Initialize useForm
+  const { register, handleSubmit, formState: { errors } } = useForm({
+    resolver: yupResolver(schema),
+  });
+
+  // onSubmit now receives validated data
+  const onSubmit = async (formData: { name: string; email: string; password: string }) => {
+    authSetLoading(true);
+    setError(''); // Clear previous general API errors
 
     try {
-      const res = await fetch(`/api/auth/client/signup`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, password }), // Include name for registration
-      });
+      await registerUser(formData.name, formData.email, formData.password); // Use registerUser from authApi
 
-      if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.message || "Registration failed");
-      }
-
-      const data = await res.json();
-      // For signup, a token might not be returned immediately, but if it is, store it.
-      if (data.token) {
-        localStorage.setItem("token", data.token);
-        if (data.user && data.user.role) {
-          localStorage.setItem('userRole', data.user.role);
-        }
-      }
-
-      alert("Registration successful! Please login."); // Inform user
-      window.location.href = "/client/login"; // Redirect to client login after successful registration
+      toast.success("Registration successful! Please login.");
+      router.push("/client/login");
     } catch (err: any) {
-      alert(err.message); // Use alert for error as per prompt
-      setError(err.message); // Also set error state for display in the component
+      toast.error(err.message);
+      setError(err.message);
     } finally {
-      setLoading(false);
+      authSetLoading(false);
     }
   };
 
@@ -52,7 +48,7 @@ const Register = () => {
       <div className="max-w-md w-full bg-white p-8 rounded-lg shadow-md">
         <h1 className="text-3xl font-bold text-center text-gray-800 mb-8">Create Client Account</h1>
         {error && <p className="text-red-500 text-center mb-4">{error}</p>}
-        <form onSubmit={handleRegister}>
+        <form onSubmit={handleSubmit(onSubmit)}>
           <div className="mb-4">
             <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="name">
               Name
@@ -62,10 +58,9 @@ const Register = () => {
               id="name"
               type="text"
               placeholder="Name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
+              {...register('name')}
             />
+            {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name.message}</p>}
           </div>
           <div className="mb-4">
             <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="email">
@@ -76,10 +71,9 @@ const Register = () => {
               id="email"
               type="email"
               placeholder="Email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
+              {...register('email')}
             />
+            {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>}
           </div>
           <div className="mb-6">
             <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="password">
@@ -90,18 +84,17 @@ const Register = () => {
               id="password"
               type="password"
               placeholder="******************"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
+              {...register('password')}
             />
+            {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password.message}</p>}
           </div>
           <div className="flex items-center justify-between">
             <button
               className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full focus:outline-none focus:shadow-outline w-full"
               type="submit"
-              disabled={loading}
+              disabled={authLoading}
             >
-              {loading ? 'Creating Account...' : 'Create Account'}
+              {authLoading ? 'Creating Account...' : 'Create Account'}
             </button>
           </div>
         </form>
