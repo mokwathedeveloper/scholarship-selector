@@ -3,6 +3,7 @@ import { uploadApplicantData } from '../controllers/uploadController';
 import multer from 'multer';
 import path from 'path';
 import { Request } from 'express'; // Import Request from express
+import { protect } from '../middleware/authMiddleware'; // Import protect middleware
 
 const router = express.Router();
 
@@ -20,6 +21,10 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 
 // Route for uploading applicant data
-router.post('/', upload.single('file'), uploadApplicantData);
+router.post('/', protect, upload.single('file'), uploadApplicantData);
 
 export default router;
+
+// TODO: Add validation for file types and size
+// TODO: Add error handling for file upload
+// TODO: Secure this endpoint to ensure only authorized users can upload data

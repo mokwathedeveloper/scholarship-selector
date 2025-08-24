@@ -1,18 +1,27 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation'; // Import from next/navigation for app router
 import { getRank } from '../../services/api';
 import { RankedApplicant } from '../../types/applicant';
 import RankTable from '../../components/RankTable';
 import Layout from '../../components/Layout';
-import { FaTrophy, FaInfoCircle } from 'react-icons/fa'; // Import icons
+import { FaTrophy, FaInfoCircle } from 'react-icons/fa';
+import { isAuthenticated } from '../../utils/auth'; // Import auth utility
 
 const RankPage: React.FC = () => {
   const [rankedApplicants, setRankedApplicants] = useState<RankedApplicant[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
 
   useEffect(() => {
+    // Protect the route
+    if (!isAuthenticated()) {
+      router.push('/login');
+      return;
+    }
+
     const fetchRankedApplicants = async () => {
       try {
         setLoading(true);
@@ -26,7 +35,7 @@ const RankPage: React.FC = () => {
     };
 
     fetchRankedApplicants();
-  }, []);
+  }, [router]);
 
   if (loading) {
     return (
