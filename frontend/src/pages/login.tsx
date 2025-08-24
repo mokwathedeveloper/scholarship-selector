@@ -20,7 +20,7 @@ const Login = () => {
   const router = useRouter();
 
   // Initialize useForm
-  const { register, handleSubmit, formState: { errors } } = useForm({
+  const { register, handleSubmit, formState: { errors } } = useForm({ // Corrected line
     resolver: yupResolver(schema),
   });
 
@@ -51,7 +51,7 @@ const Login = () => {
       <div className="max-w-md w-full bg-white p-8 rounded-lg shadow-md">
         <h1 className="text-3xl font-bold text-center text-gray-800 mb-8">Client Login</h1>
         {error && <p className="text-red-500 text-center mb-4">{error}</p>}
-        <form onSubmit={handleSubmit(onSubmit)}> {/* Use handleSubmit */}
+        <form onSubmit={handleSubmit(onSubmit)}>
           <div className="mb-4">
             <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="email">
               Email
@@ -61,9 +61,9 @@ const Login = () => {
               id="email"
               type="email"
               placeholder="Email"
-              {...register('email')} {/* Register input */}
+              {...register('email')}
             />
-            {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>} {/* Display error */}
+            {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>}
           </div>
           <div className="mb-6">
             <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="password">
@@ -74,9 +74,9 @@ const Login = () => {
               id="password"
               type="password"
               placeholder="******************"
-              {...register('password')} {/* Register input */}
+              {...register('password')}
             />
-            {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password.message}</p>} {/* Display error */}
+            {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password.message}</p>}
           </div>
           <div className="flex items-center justify-between">
             <button

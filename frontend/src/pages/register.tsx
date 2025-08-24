@@ -21,7 +21,7 @@ const Register = () => {
   const router = useRouter();
 
   // Initialize useForm
-  const { register, handleSubmit, formState: { errors } } = useForm({
+  const { register, handleSubmit, formState: { errors } } = useForm({ // Corrected line
     resolver: yupResolver(schema),
   });
 
