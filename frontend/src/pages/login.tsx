@@ -1,32 +1,45 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/router';
-import { loginUser } from '../services/api'; // Import the loginUser API call
+// Removed useRouter as window.location.href is used for redirect
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const router = useRouter();
+  // Removed router as window.location.href is used for redirect
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError('');
+    setError(''); // Clear previous errors
 
     try {
-      const data = await loginUser(email, password); // Use the imported API call
+      const res = await fetch(`/api/auth/client/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
 
-      if (data.token) {
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('userRole', data.user.role); // Store user role
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || "Login failed");
       }
 
-      router.push('/user/dashboard'); // Always redirect to user dashboard for generic login
+      const data = await res.json();
+      if (data.token) {
+        localStorage.setItem("token", data.token);
+        // Store userRole if provided by the backend
+        if (data.user && data.user.role) {
+          localStorage.setItem('userRole', data.user.role);
+        }
+      }
+
+      window.location.href = "/user/dashboard"; // Always redirect to user dashboard for client login
     } catch (err: any) {
-      setError(err.message);
+      alert(err.message); // Use alert for error as per prompt
+      setError(err.message); // Also set error state for display in the component
     } finally {
       setLoading(false);
     }

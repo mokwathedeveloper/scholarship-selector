@@ -1,40 +1,44 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/router';
+// Removed useRouter as window.location.href is used for redirect
 
 const AdminLogin = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const router = useRouter();
+  // Removed router as window.location.href is used for redirect
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError('');
+    setError(''); // Clear previous errors
 
     try {
       const res = await fetch(`/api/auth/admin/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       });
 
       if (!res.ok) {
         const errorData = await res.json();
-        throw new Error(errorData.message || 'Admin login failed');
+        throw new Error(errorData.message || "Admin login failed");
       }
 
       const data = await res.json();
       if (data.token) {
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('userRole', data.user.role); // Store user role
+        localStorage.setItem("token", data.token);
+        // Store userRole if provided by the backend
+        if (data.user && data.user.role) {
+          localStorage.setItem('userRole', data.user.role);
+        }
       }
 
-      router.push('/admin/dashboard');
+      window.location.href = "/admin/dashboard"; // Always redirect to admin dashboard for admin login
     } catch (err: any) {
-      setError(err.message);
+      alert(err.message); // Use alert for error as per prompt
+      setError(err.message); // Also set error state for display in the component
     } finally {
       setLoading(false);
     }
@@ -86,8 +90,8 @@ const AdminLogin = () => {
         </form>
         <p className="text-center text-gray-500 text-xs mt-4">
           Don't have an admin account?{' '}
-          <Link href="/admin/signup">
-            <a className="text-blue-600 hover:text-blue-800">Sign up</a>
+          <Link href="/admin/signup" className="text-blue-600 hover:text-blue-800">
+            Sign up
           </Link>
         </p>
       </div>
