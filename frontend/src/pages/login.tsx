@@ -2,11 +2,11 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import { loginUser } from '../services/api'; // Import the loginUser API call
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [role, setRole] = useState<'client' | 'admin'>('client');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const router = useRouter();
@@ -17,28 +17,14 @@ const Login = () => {
     setError('');
 
     try {
-      const res = await fetch(`/api/auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      });
+      const data = await loginUser(email, password); // Use the imported API call
 
-      if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.message || 'Login failed');
-      }
-
-      const data = await res.json();
       if (data.token) {
         localStorage.setItem('token', data.token);
+        localStorage.setItem('userRole', data.user.role); // Store user role
       }
 
-      // Redirect based on role
-      if (data.user.role === 'admin') {
-        router.push('/admin/dashboard');
-      } else {
-        router.push('/user/dashboard');
-      }
+      router.push('/user/dashboard'); // Always redirect to user dashboard for generic login
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -49,23 +35,9 @@ const Login = () => {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center items-center">
       <div className="max-w-md w-full bg-white p-8 rounded-lg shadow-md">
-        <h1 className="text-3xl font-bold text-center text-gray-800 mb-8">Login</h1>
+        <h1 className="text-3xl font-bold text-center text-gray-800 mb-8">Client Login</h1>
         {error && <p className="text-red-500 text-center mb-4">{error}</p>}
         <form onSubmit={handleLogin}>
-          <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="role">
-              Role
-            </label>
-            <select
-              id="role"
-              value={role}
-              onChange={(e) => setRole(e.target.value as 'client' | 'admin')}
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-            >
-              <option value="client">Client</option>
-              <option value="admin">Admin</option>
-            </select>
-          </div>
           <div className="mb-4">
             <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="email">
               Email

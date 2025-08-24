@@ -1,12 +1,18 @@
 import express from 'express';
-import { registerUser, loginUser } from '../controllers/authController';
+import { registerUser, loginUser, registerAdmin, loginAdmin, registerClient, loginClient } from '../controllers/authController';
 
 const router = express.Router();
 
-// Register a new user
+// Generic user registration and login (can be used for client if role is passed)
 router.post('/register', registerUser);
-
-// Login a user
 router.post('/login', loginUser);
+
+// Admin specific authentication
+router.post('/admin/signup', registerAdmin);
+router.post('/admin/login', loginAdmin);
+
+// Client specific authentication
+router.post('/client/signup', registerClient);
+router.post('/client/login', loginClient);
 
 export default router;
