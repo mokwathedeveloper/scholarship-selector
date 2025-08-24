@@ -2,6 +2,7 @@ import axios from 'axios';
 import { UploadResult } from '../types/upload';
 import { ApplicantData, RankedApplicant } from '../types/applicant';
 import { AuthResponse } from '../types/auth';
+import { User } from '../types/user'; // Import the new User type
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5000/api';
 
@@ -11,6 +12,21 @@ const api = axios.create({
     'Content-Type': 'application/json',
   },
 });
+
+// Add a request interceptor to include the token in headers
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      config.headers['Authorization'] = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
 
 // Function to upload applicant data
 export const uploadApplicants = async (file: File, documentType: string): Promise<UploadResult> => {
@@ -74,6 +90,26 @@ export const registerUser = async (name: string, email: string, password: string
 export const loginUser = async (email: string, password: string): Promise<AuthResponse> => {
   try {
     const response = await api.post<AuthResponse>('/auth/login', { email, password });
+    return response.data;
+  } catch (error: any) {
+    throw error.response?.data || error.message;
+  }
+};
+
+// Function to get user profile
+export const getUserProfile = async (): Promise<User> => {
+  try {
+    const response = await api.get<User>('/user/profile');
+    return response.data;
+  } catch (error: any) {
+    throw error.response?.data || error.message;
+  }
+};
+
+// Function to get all users (admin)
+export const getAllUsers = async (): Promise<User[]> => {
+  try {
+    const response = await api.get<User[]>('/admin/users');
     return response.data;
   } catch (error: any) {
     throw error.response?.data || error.message;
